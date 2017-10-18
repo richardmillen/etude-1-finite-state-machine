@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
 			}).next_state("operand1")
 			(result, [](ctx) {
 				auto total = op_func(operand1, operand2);
-				ctx.push(total);
+				ctx.send_next(total);
 			}).next_state("operand1")
 			;
 	
