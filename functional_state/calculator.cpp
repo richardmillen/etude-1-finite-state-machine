@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
 				cout << operand2 << flush;
 			})
 			(oper, [&](ctx) {
-				op_func = ctx.stream().str();
+				op_func = op_funcs[ctx.stream().str()];
 			}).next_state("operand1")
 			(result, [](ctx) {
 				auto total = op_func(operand1, operand2);
