@@ -12,20 +12,28 @@
 #include <iomanip>
 #include <string>
 #include <functional>
+#include <unordered_map>
 
 using namespace std;
 
 int main(int argc, char* argv[]) {
 	context_t calc;
 	
-	auto op1_stream = calc.add_stream("operand1", R"([\d\.])");
-	auto op2_stream = calc.add_stream("operand2", R"([\d\.])");
-	auto oper_stream = calc.add_stream("opEntered", R"([\+\-/\*])");
-	auto res_stream = calc.add_stream("result", "=");
+	auto operand = calc.add_stream("operand", R"([\d\.])");
+	auto oper = calc.add_stream("oper", R"([\+\-/\*])");
+	auto result = calc.add_stream("result", "=");
 	auto clear = calc.add_command("clear");
+
+	unordered_map<string, ...> op_funcs = {
+		{"+", plus()},
+		{"-", minus()},
+		{"/", divides()},
+		{"*", multiplies()}
+	}
 	
-	auto op1_value = 0.0f;
-	auto op2_value = 0.0f;
+	auto operand1 = 0.0f;
+	auto operand2 = 0.0f;
+	auto op_func = ...;
 	
 	auto on = calc.add_state("on")
 		(clear, [](ctx) {
@@ -33,41 +41,36 @@ int main(int argc, char* argv[]) {
 			ctx.reset();
 		});
 	
-	auto oper = on.add_substate("opEntered")
-		(oper_stream, [](ctx) {
-			cout << ctx.input() << endl;
-		});
-	
-	auto op1 = oper.add_substate("operand1");
-		(op1_stream, [](ctx) {
-			op1_value = stof(ctx.stream().str());
-			cout << op1_value << flush;
-		});
-	
-	auto op2 = oper.add_substate("operand2");
-		(op2_stream, [](ctx) {
-			op2_value = stof(ctx.stream().str());
-			cout << op2_value << flush;
-		});
-	
-	auto result = op2.add_next_state("result");
-		(res_stream, [](ctx) {
-			auto op = ctx.conditions[ctx.streams["opEntered"].str()];
-			auto total = op(op1_value, op2_value);
-			ctx.push(total);
-		}).next(op1);
-	
-	result.add_conditions({
-		{"+", plus()},
-		{"-", minus()},
-		{"/", divides()},
-		{"*", multiplies()}
-	});
+	on.add_substate("operand1")
+		(operand, [&](ctx) {
+			operand1 = stof(ctx.stream().str());
+			cout << operand1 << flush;
+		})
+		(oper, [](ctx) {
+			cout << ctx.stream().str() << flush;
+		}).add_next("operand2")
+			(operand, [&](ctx) {
+				operand2 = stof(ctx.stream().str());
+				cout << operand2 << flush;
+			})
+			(oper, [&](ctx) {
+				op_func = ctx.stream().str();
+			}).next_state("operand1")
+			(result, [](ctx) {
+				auto total = op_func(operand1, operand2);
+				ctx.push(total);
+			}).next_state("operand1")
+			;
 	
 	calc.initial_state(op1);
 	
 	calc.execute("2");
 	calc.execute("+");
+	calc.execute("2");
+	calc.execute("*");
+	calc.execute("10");
+	calc.execute("=");
+	calc.execute("/");
 	calc.execute("2");
 	
 	return 0;
