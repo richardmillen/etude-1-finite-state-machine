@@ -18,11 +18,6 @@ using namespace std;
 
 int main(int argc, char* argv[]) {
 	context_t calc;
-	
-	auto operand = calc.add_stream("operand", R"([\d\.])");
-	auto oper = calc.add_stream("oper", R"([\+\-/\*])");
-	auto result = calc.add_stream("result", "=");
-	auto clear = calc.add_command("clear");
 
 	unordered_map<string, ...> op_funcs = {
 		{"+", plus()},
@@ -35,43 +30,58 @@ int main(int argc, char* argv[]) {
 	auto operand2 = 0.0f;
 	auto op_func = ...;
 	
-	auto on = calc.add_state("on")
-		(clear, [](ctx) {
-			cout << "clearing..." << endl;
-			ctx.reset();
-		});
+	state_t on("on");
+	state_t op1("operand1");
+	state_t op2("operand2");
 	
-	on.add_substate("operand1")
-		(operand, [&](ctx) {
-			operand1 = stof(ctx.stream().str());
-			cout << operand1 << flush;
-		})
-		(oper, [](ctx) {
-			cout << ctx.stream().str() << flush;
-		}).add_next("operand2")
-			(operand, [&](ctx) {
-				operand2 = stof(ctx.stream().str());
-				cout << operand2 << flush;
-			})
-			(oper, [&](ctx) {
-				op_func = op_funcs[ctx.stream().str()];
-			}).next_state("operand1")
-			(result, [](ctx) {
-				auto total = op_func(operand1, operand2);
-				ctx.send_next(total);
-			}).next_state("operand1")
-			;
+	on.add_substate(op1);
+	on.add_substate(op2);
 	
+	stream_t operand("operand", R"([\d\.])");
+	stream_t oper("oper", R"([\+\-/\*])");
+	stream_t equals("equals", "=");
+	stream_t clear("clear", "[cC]");
+	
+	on.add_event(clear, [](ctx) {
+		cout << "clearing..." << endl;
+		ctx.reset();
+	});
+	
+	op1.add_event(operand, [&](ctx) {
+		operand1 = stof(ctx.stream().str());
+		cout << operand1 << flush;
+	});
+	
+	op1.add_event(oper, [](ctx) {
+		cout << ctx.stream().str() << flush;
+	}).next_state(op2);
+	
+	op2.add_event(operand, [&](ctx) {
+		operand2 = stof(ctx.stream().str());
+		cout << operand2 << flush;
+	});
+	
+	op2.add_event(oper, [&](ctx) {
+		op_func = op_funcs[ctx.stream().str()];
+		ctx.stream().str("");
+	}).next_state(op1);
+	
+	op2.add_event(equals, [](ctx) {
+		auto total = op_func(operand1, operand2);
+		ctx.next_stream() << total;
+	}).next_state(op1)
+	
+	// all other connected states are implicitly added to calc:
 	calc.initial_state(op1);
 	
-	calc.execute("2");
-	calc.execute("+");
-	calc.execute("2");
-	calc.execute("*");
-	calc.execute("10");
-	calc.execute("=");
-	calc.execute("/");
-	calc.execute("2");
+	calc.send("2");
+	calc.send("+");
+	calc.send("2");
+	calc.send("*");
+	calc.send("10");
+	calc.send("=");
+	calc.send("/");
+	calc.send("2");
 	
 	return 0;
 }
