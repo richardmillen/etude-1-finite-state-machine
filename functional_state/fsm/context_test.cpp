@@ -20,7 +20,6 @@ TEST_F(ContextTest, Foo) {
 context_t:
 	initial_state(state_t state)
 	send(string s)
-	send(stream_t s)
 	reset() <-- ??
 	
 event_context_t:

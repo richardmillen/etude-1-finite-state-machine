@@ -5,18 +5,37 @@
 #include "fsm/context.hpp"
 
 #include <iostream>
+#include <vector>
 #include <functional>
+
+using namespace std;
 
 int main(int argc, char* argv[]) {
 	context_t lock;
 	
-	lock.conditions["combination"]    = [1, 2, 1, 2];
-	lock.conditions["dial-positions"] = [0, 0, 0, 0];
+	vector<condition_t> combo = {1, 2, 1, 2}; 
+	vector<condition_t> dials = {0, 0, 0, 0};
 	
-	auto dials = lock.conditions["dial-positions"];
-	auto unlock_pos = lock.conditions["combination"];
+	state_t locked("locked");
+	state_t unlocked("unlocked");
+	state_t open("open");
 	
-	auto locked = lock.add_state("locked", dials, not_equal_to(unlock_pos));
+	stream_t cmd_open("open", "open");
+	stream_t cmd_close("close", "close");
+	stream_t cmd_up("up", "up");
+	stream_t cmd_down("down", "down");
+	
+	locked.add_condition(dials, condition_t::not_equal_to(), combo);
+	unlocked.add_condition(dials, condition_t::equal_to(), combo);
+	
+	UP: 
+		auto w = dials.writeable();
+		++w[i];
+	
+	DOWN:
+		auto w = dials.writeable();
+		--w[i];
+		
 	locked.on_enter([]() {
 		cout << "entering locked state..." << endl;
 	});
@@ -24,45 +43,33 @@ int main(int argc, char* argv[]) {
 		cout << "leaving locked state..." << endl;
 	});
 	
-	auto unlocked = lock.add_state("unlocked", dials, equal_to(unlock_pos));
 	unlocked.on_enter([]() {
 		cout << "entering unlocked state..." << endl;
 	});
+	unlocked.on_event(cmd_open, [](ctx) {
+		cout << "opening lock..." << endl;
+	}).next_state(open);;
 	unlocked.on_exit([]() {
 		cout << "leaving unlocked state..." << endl;
 	});
 	
-	auto open = unlocked.add_state("open"); 
 	open.on_enter([]() {
 		cout << "entering open state..." << endl;
+	});
+	open.on_event(cmd_close, [](ctx) {
+		cout << "closing lock..." << endl;
 	});
 	open.on_exit([]() {
 		cout << "leaving open state..." << endl;
 	});
 	
-	auto close = open.add_command("close", []() {
-		cout << "closing lock..." << endl;
-	}).next_state({locked, unlocked});
-	
-	auto up = lock.add_command("spin-up", [&](i) {
-		auto w = dials.writeable();
-		++w[i];
-	});
-	auto down = lock.add_command("spin-down", [&](i) {
-		auto w = dials.writeable();
-		--w[i];
-	});
-	auto open_lock = unlocked.add_command("open", []() {
-		cout << "opening lock..." << endl;
-	}).next_state(open);
-	
-	lock.initial({locked, unlocked});
+	lock.initial_state({locked, unlocked});
 	
 	assert(lock.is_current(locked))
 	assert(locked.is_current());
 	
-	open();		// <--- ignored
-	close();	// <--- ignored
+	lock.send("open");			// <--- ignored
+	lock.send("close");			// <--- ignored
 	
 			//      0, 0, 0, 0 (initial position)
 	up(0);		// <--- [1], 0, 0, 0

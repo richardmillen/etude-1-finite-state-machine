@@ -42,31 +42,31 @@ int main(int argc, char* argv[]) {
 	stream_t equals("equals", "=");
 	stream_t clear("clear", "[cC]");
 	
-	on.add_event(clear, [](ctx) {
+	on.on_event(clear, [](ctx) {
 		cout << "clearing..." << endl;
 		ctx.reset();
 	});
 	
-	op1.add_event(operand, [&](ctx) {
+	op1.on_event(operand, [&](ctx) {
 		operand1 = stof(ctx.stream().str());
 		cout << operand1 << flush;
 	});
 	
-	op1.add_event(oper, [](ctx) {
+	op1.on_event(oper, [](ctx) {
 		cout << ctx.stream().str() << flush;
 	}).next_state(op2);
 	
-	op2.add_event(operand, [&](ctx) {
+	op2.on_event(operand, [&](ctx) {
 		operand2 = stof(ctx.stream().str());
 		cout << operand2 << flush;
 	});
 	
-	op2.add_event(oper, [&](ctx) {
+	op2.on_event(oper, [&](ctx) {
 		op_func = op_funcs[ctx.stream().str()];
 		ctx.stream().str("");
 	}).next_state(op1);
 	
-	op2.add_event(equals, [](ctx) {
+	op2.on_event(equals, [](ctx) {
 		auto total = op_func(operand1, operand2);
 		ctx.next_stream() << total;
 	}).next_state(op1)
