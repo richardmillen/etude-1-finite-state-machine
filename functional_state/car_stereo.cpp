@@ -15,10 +15,8 @@ int main(int argc, char* argv[]) {
 	stream_t cmd_on("on", "on");
 	stream_t cmd_off("off", "off");
 	
-	state_condition_t start_mode;
-	start_mode.expr("cd");
-	start_mode.eval([](c, s) {
-		return c.expr() == s.name();
+	condition_t start_mode([](s) {
+		return "cd" == s.name();
 	});
 	
 	state_t off("off");

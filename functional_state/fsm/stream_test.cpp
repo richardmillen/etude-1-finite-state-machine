@@ -16,8 +16,14 @@ TEST_F(StreamTest, Foo) {
 }
 
 /*
-stream_t:
-	stream_t(string name, string match)
+stream_t
+--------
+
+stream_t(string name, string match)
+std::string str()
+void str(...)
 	
 */
+
+
 

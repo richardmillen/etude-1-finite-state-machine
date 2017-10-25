@@ -19,16 +19,22 @@ TEST_F(ConditionTest, Foo) {
 
 
 /*
-condition_t:
-	condition_t(boost::any)		<-- ??
-	condition_t()
+condition_t
+-----------
+
+condition_t(boost::any)		<-- ??
+condition_t()
 	
-	expr() -> std::string&
-	eval(std::function)
+expr() -> std::string&		<-- ??
+
+eval(std::function<bool(std::string)> fn)
 
 
 
 */
+
+
+
 
 
 

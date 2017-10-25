@@ -23,14 +23,16 @@ event_t
 -------
 
 void next_state(state_t s)
-void next_state(condition_t c, state_t s...)
-next_state(state_t...)
+void next_state(condition_t c, state_t[] s)
+next_state(state_t[] s)
 must_next(state_t s)
-must_next(condition_t c, state_t s...);
-must_next(state_t...)
+must_next(condition_t c, state_t[] s);
+must_next(state_t[] s)
 
 
 */
+
+
 
 
 
