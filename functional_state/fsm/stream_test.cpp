@@ -16,14 +16,23 @@ TEST_F(StreamTest, Foo) {
 }
 
 /*
+stream_t<T>
+-----------
+
 stream_t
 --------
 
 stream_t(string name, string match)
-std::string str()
-void str(...)
-	
+stream_t(string name, string introducer, string match)
+std::string value()
+value(std::string s)
+
+operator<<()
+operator=()
+
+
 */
+
 
 
 

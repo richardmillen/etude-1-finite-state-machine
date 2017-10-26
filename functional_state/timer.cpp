@@ -11,30 +11,41 @@
 int main(int argc, char* argv[]) {
 	context_t clock;
 	
-	auto count = clock.add_condition("counter", 10);
+	stream_t<int> count("counter", 10);
+	stream_t start("start", "start");
 	
-	auto timer = clock.add_timer("timer", [&]() {
-		auto c = count.writeable();
-		cout << "timer: " << c-- << endl;
-	}).interval(1s);
+	condition_t timed_out([]() {
+		// TODO: how best to implement?	
+	});
 	
-	auto bell = clock.add_timer("bell", []() {
+	timer_t timer("timer", 1s);
+	timer_t bell("bell", 500ms);
+	
+	state_t on("on", timer);
+	state_t alarm("alarm", bell);
+	
+	on.add_substate(alarm);
+	
+	on.on_event(start, [](ctx) {
+		cout << "starting timer..."	
+		ctx.start_timer();
+	});
+	
+	timer.on_tick(count, [](ctx) {
+		cout << "timer: " << ctx.value()-- << endl;
+	}).next_state(timed_out, alarm);
+	
+	bell.on_tick([](ctx) {
 		cout << "alarm: ding-a-ling!" << endl;
-	}).interval(500ms);
-	
-	auto on = clock.add_initial_state("on");
-	
-	auto start = on.add_command(equal_to("start"), [&]() {
-		timer.start();
 	});
 	
-	on.add_substate("alarm", count, less_equal(), 0)
-	alarm.on_enter([&]() {
-		cout << "alarm: starting alarm..." << endl;
-		bell.start();
+	alarm.on_enter([](ctx) {
+		ctx.start_timer();	
 	});
 	
-	start();
+	clock.initial_state(on);
+	
+	clock.send("start");
 	
 	return 0;
 }

@@ -13,71 +13,50 @@ using namespace std;
 int main(int argc, char* argv[]() {
 	context_t acceptor;
 	
-	auto input = acceptor.add_stream("input");
+	stream_t any_in("input");
+	stream_t nice_in("nice", "nice");
 	
-	auto invalid = acceptor.add_default_state("not accepting").stream(input);
-	auto ok = acceptor.add_state("accepting").stream(input, "nice");
-	auto done = ok.add_next("done");
+	state_t invalid("not accepting");
+	state_t ok("accepting");
 	
-	cout << "input: " << input.str() << endl;
+	invalid.add_substate(ok);
+	
+	invalid.on_event(any_in, [](ctx) {
+		cout << "invalid input: " << ctx.string() << endl;
+	});
+	invalid.on_event(nice_in, [](ctx) {
+		cout << "input: " << ctx.string() << endl;
+	}).next_state(ok);
+	
+	acceptor.initial_state(invalid);
+	
+	acceptor.send("n");
 	assert(acceptor.current_state() == invalid);
-	assert(acceptor.current_state() == "not accepting");
 
-	acceptor.recv("n");
-	
-	cout << "input: " << input.str() << endl;
+	acceptor.send("i");
+	assert(acceptor.current_state() == invalid);
+
+	acceptor.send("c");
+	assert(acceptor.current_state() == invalid);
+
+	acceptor.send("e");
 	assert(acceptor.current_state() == ok);
-	assert(acceptor.current_state() == "accepting");
-
-	acceptor.recv("i");
 	
-	cout << "input: " << input.str() << endl;
-	assert(acceptor.current_state() == ok);
-	assert(acceptor.current_state() == "accepting");
-
-	acceptor.recv("c");
+	acceptor.send("!");
+	assert(acceptor.current_state() == invalid);	
 	
-	cout << "input: " << input.str() << endl;
-	assert(acceptor.current_state() == ok);
-	assert(acceptor.current_state() == "accepting");
-
-	acceptor.recv("e");
-	
-	assert(input.str() == "nice");
-	
-	cout << "input: " << input.str() << endl;
-	assert(acceptor.current_state() == done);
-	assert(acceptor.current_state() == "done");
-	
-	acceptor.recv("!");
-	
-	assert(input.str() == "nice");
-	
-	cout << "input (unchanged): " << input.str() << endl;
-	assert(acceptor.current_state() == done);
-	assert(acceptor.current_state() == "done");
-
 	cout << "let's start over!" << endl;
 	
 	acceptor.reset();
 	
-	assert(input.str() == "");
-	
-	cout << "input: " << input.str() << endl;
 	assert(acceptor.current_state() == invalid);
 	assert(acceptor.current_state() == "not accepting");
 	
-	acceptor.recv("ni");
+	acceptor.send("ni");
+	assert(acceptor.current_state() == invalid);
 	
-	cout << "input: " << input.str() << endl;
+	acceptor.send("ce");
 	assert(acceptor.current_state() == ok);
-	assert(acceptor.current_state() == "accepting");
-	
-	acceptor.recv("ny muggins");
-	
-	cout << "input: " << input.str() << endl;
-	assert(acceptor.current_state() == invalid);
-	assert(acceptor.current_state() == "not accepting");
 	
 	return 0;
 }

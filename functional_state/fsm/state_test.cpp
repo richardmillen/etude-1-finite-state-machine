@@ -21,12 +21,20 @@ state_t
 -------
 
 state_t(std::string name)
-void add_substate(state_t state)
-void add_condition(condition_t condition)
+state_t(std::string name, timer_t timer)
+
+std::string name()
+add_substate(state_t s)
+add_condition(condition_t c)
+add_conditions(condition_t[], binary_function<>, condition_t[])
+
 event_t on_event(stream_t input, std::function<void(context_t)> fn)
-error_t on_error(std::function fn) 
-void on_enter(std::function fn)
-void on_exit(std::function fn)
+
+on_enter(std::function<void(context_t)> fn)
+
+on_exit(std::function<void(context_t)> fn)
+
+error_t on_error(std::function<void(context_t)> fn) 
 
 
 

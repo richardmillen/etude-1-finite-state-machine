@@ -6,6 +6,10 @@
 #include <string>
 
 void assemble(context_t& turnstile) {
+	// TODO: reimplement using current api
+	
+	
+	
     auto locked = turnstile.add_state("locked");
 	auto unlocked = turnstile.add_state("unlocked");
 	

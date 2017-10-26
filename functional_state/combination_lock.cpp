@@ -22,8 +22,8 @@ int main(int argc, char* argv[]) {
 	
 	stream_t cmd_open("open", "open");
 	stream_t cmd_close("close", "close");
-	stream_t cmd_up("up", "up");
-	stream_t cmd_down("down", "down");
+	stream_t cmd_up("up", "u", "[1234]");
+	stream_t cmd_down("down", "d", "[1234]");
 	
 	locked.add_condition(dials, condition_t::not_equal_to(), combo);
 	unlocked.add_condition(dials, condition_t::equal_to(), combo);
@@ -66,62 +66,53 @@ int main(int argc, char* argv[]) {
 	lock.initial_state({locked, unlocked});
 	
 	assert(lock.is_current(locked))
-	assert(locked.is_current());
 	
 	lock.send("open");			// <--- ignored
 	lock.send("close");			// <--- ignored
 	
-			//      0, 0, 0, 0 (initial position)
-	up(0);		// <--- [1], 0, 0, 0
-	up(1);		// <--- 1, [1], 0, 0
-	up(1);		// <--- 1, [2], 0, 0
-	up(2);		// <--- 1, 2, [1], 0
-	up(3);		// <--- 1, 2, 1, [1]
-	up(3);		// <--- 1, 2, 1, [2] (unlocked position)
+				//      0, 0, 0, 0 (initial position)
+	lock.send("u0");	// <--- [1], 0, 0, 0
+	lock.send("u1");	// <--- 1, [1], 0, 0
+	lock.send("u1");	// <--- 1, [2], 0, 0
+	lock.send("u2");	// <--- 1, 2, [1], 0
+	lock.send("u3");	// <--- 1, 2, 1, [1]
+	lock.send("u3");	// <--- 1, 2, 1, [2] (unlocked position)
 	
 	assert(lock.is_current(unlocked));
-	assert(unlocked.is_current());
 	
-	down(3);	// <--- 1, 2, 1, [1] (locked again)
+	lock.send("d3");	// <--- 1, 2, 1, [1] (locked again)
 	
 	assert(lock.is_current(locked));
-	assert(locked.is_current());
 	
-	up(3);		// <--- 1, 2, 1, [2] (unlocked again)
+	lock.send("u3");		// <--- 1, 2, 1, [2] (unlocked again)
 	
 	assert(lock.is_current(unlocked));
-	assert(unlocked.is_current());
 	
-	open();
-	
-	assert(lock.is_current(open));
-	assert(open.is_current());
-	
-	down(0);	// <--- [0], 2, 1, 2 (locked position, though still open!)
+	lock.send("open");
 	
 	assert(lock.is_current(open));
-	assert(open.is_current());
 	
-	close();
+	lock.send("u0");	// <--- [0], 2, 1, 2 (locked position, though still open!)
+	
+	assert(lock.is_current(open));
+	
+	lock.send("close");
 	
 	assert(lock.is_current(locked));
-	assert(locked.is_current());
 	
-	open();		// <--- ignored 
+	lock.send("open");		// <--- ignored 
 	
-	up(0);		// <--- [1], 2, 1, 2 (unlocked position)
+	lock.send("u0");		// <--- [1], 2, 1, 2 (unlocked position)
 	
-	lock.execute("open");
+	lock.send("open");
 	
 	assert(lock.is_current(open));
-	assert(open.is_current());
 	
-	lock.execute("close");
+	lock.send("close");
 	
 	assert(lock.is_current(unlocked));
-	assert(unlocked.is_current());
 	
-	close()		// <--- ignored
+	lock.send("close");		// <--- ignored
 	
 	return 0;
 }
