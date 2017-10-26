@@ -1,7 +1,12 @@
 #pragma once
 
-class condition_t {
+class state_t {
 public:
 private:
 };
+
+
+
+
+
 

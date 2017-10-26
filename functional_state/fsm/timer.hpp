@@ -1,7 +1,13 @@
 #pragma once
 
-class condition_t {
+class timer_t {
 public:
 private:
 };
+
+
+
+
+
+
 
