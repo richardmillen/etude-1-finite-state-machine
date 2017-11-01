@@ -3,6 +3,7 @@
 //////////////////////
 
 #include "context.hpp"
+#include "state.hpp"
 
 #include <gtest/gtest.h>
 
@@ -12,15 +13,26 @@ public:
 	context_t ctx;
 };
 
-TEST_F(ContextTest, Foo) {
+TEST_F(ContextTest, NoCurrentState) {
+	state_t s("foo");
+	
+	ASSERT_FALSE(ctx.is_current(s));
 }
 
+TEST_F(ContextTest, StartStateIsCurrent) {
+	state_t s("foo");
+	ctx.start(s);
+	
+	ASSERT_TRUE(ctx.is_current(s));
+}
 
 /*
 
+recv() ignored
+recv() handled
 
 
-
+recv()  /  send()  /  handle()  /  process()  /  input()  /  execute()
 
 context_t:
 
@@ -38,6 +50,7 @@ string()
 next_stream()
 
 start_timer()
+
 
 */
 
