@@ -9,7 +9,7 @@
 class state_t {
 public:
 	state_t(const std::string& name);
-	std::string& name();
+	const std::string& name();
 private:
 	std::string name_;
 };
