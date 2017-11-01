@@ -10,29 +10,32 @@
 class ContextTest : public testing::Test
 {
 public:
-	context_t ctx;
+	ContextTest() : state1("state1"), state2("state2"), counter(0) {}
+private:
+	context_t context;
+	state_t state1;
+	state_t state2;
+	int counter;
 };
 
 TEST_F(ContextTest, NoCurrentState) {
-	state_t s("foo");
-	
-	ASSERT_FALSE(ctx.is_current(s));
+	ASSERT_FALSE(context.is_current(state1));
 }
 
 TEST_F(ContextTest, StartStateIsCurrent) {
-	state_t s("foo");
-	ctx.start(s);
+	context.start(state1);
 	
-	ASSERT_TRUE(ctx.is_current(s));
+	ASSERT_TRUE(context.is_current(state1));
 }
+
+
+
+
 
 /*
 
-recv() ignored
-recv() handled
 
 
-recv()  /  send()  /  handle()  /  process()  /  input()  /  execute()
 
 context_t:
 
