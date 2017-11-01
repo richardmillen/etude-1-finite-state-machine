@@ -6,17 +6,20 @@
 
 #include <gtest/gtest.h>
 
-class StateTest : public testing::Test
-{
-public:
-	state_t state;
-};
-
-TEST_F(StateTest, Foo) {
+TEST(StateTest, GetName) {
+	state_t state("test");
+	ASSERT_EQ("test", state.name());
 }
 
 
 /*
+
++ name() readonly string
++ 
+
+
+
+
 state_t
 -------
 
