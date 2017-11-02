@@ -9,14 +9,36 @@
 #include <regex>
 #include <string>
 
-#define starts_with 	std::regex_constants::match_continuous
-#define ignore_case	std::regex_constants::icase
+using namespace std;
 
-TEST(StreamTest, EmptyMatchString) {
-	stream_t foo("name", "");
+const char* STREAM_NAME = "test";
+
+#define starts_with 	regex_constants::match_continuous
+#define ignore_case	regex_constants::icase
+
+TEST(StreamTest, AcceptAll) {
+	stream_t all(STREAM_NAME);
 	
-	EXPECT_FALSE(foo.match("foo"));
-	EXPECT_TRUE(foo.match(""));
+	EXPECT_TRUE(all.accept("foo"));
+	EXPECT_TRUE(all.accept("bar"));
+	EXPECT_TRUE(all.accept("foo\nbar"));
+	EXPECT_TRUE(all.accept(""));
+}
+
+TEST(StreamTest, AcceptRegexString) {
+	stream_t empty(STREAM_NAME, "foo|bar");
+	
+	EXPECT_TRUE(empty.accept("foo"));
+	EXPECT_TRUE(empty.accept("bar"));
+	EXPECT_FALSE(empty.accept(""));
+	EXPECT_FALSE(empty.accept("abc"));
+}
+
+TEST(StreamTest, AcceptEmptyString) {
+	stream_t empty(STREAM_NAME, "");
+	
+	EXPECT_FALSE(empty.accept("foo"));
+	EXPECT_TRUE(empty.accept(""));
 }
 
 
@@ -29,9 +51,10 @@ stream_t
 --------
 
 stream_t(string name, string match)
-stream_t(string name, string introducer, string input)
-std::string value()
-value(std::string s)
+stream_t(string name, string[] seq_match)
+stream_t(string name) << accept all
+string value()
+value(string s)
 
 operator<<()
 operator=()
@@ -41,37 +64,37 @@ operator=()
 
 
 
-////// REGEX SAMPLES ////// 
-TEST(RegexTest, RegexMatch) {
-	std::regex rx("Get|GetValue");
-	std::cmatch m;
+////// (TEMPORARY) REGEX EXAMPLES ////// 
+TEST(RegexExample, RegexMatch) {
+	regex rx("Get|GetValue");
+	cmatch m;
 	
-	EXPECT_TRUE(std::regex_match("GetValue", m, rx));
-	EXPECT_TRUE(std::regex_match("Get", m, rx));
-	EXPECT_FALSE(std::regex_match("GetValues", m, rx));
+	EXPECT_TRUE(regex_match("GetValue", m, rx));
+	EXPECT_TRUE(regex_match("Get", m, rx));
+	EXPECT_FALSE(regex_match("GetValues", m, rx));
 }
 
-TEST(RegexTest, RegexMatchString) {
-	std::regex rx("abc");
-	std::string value("abc");
+TEST(RegexExample, RegexMatchString) {
+	regex rx("abc");
+	string value("abc");
 	
-	std::cmatch m;
-	EXPECT_TRUE(std::regex_match(value.c_str(), m, rx));
+	cmatch m;
+	EXPECT_TRUE(regex_match(value.c_str(), m, rx));
 }
 
-TEST(RegexTest, RegexStartsWith) {
-	std::regex rx("world");
-	std::cmatch m;
+TEST(RegexExample, RegexStartsWith) {
+	regex rx("world");
+	cmatch m;
 	
-	EXPECT_EQ(1, std::regex_search("worldwide", rx, starts_with));
-	EXPECT_EQ(0, std::regex_search("hello world!", rx, starts_with));
+	EXPECT_EQ(1, regex_search("worldwide", rx, starts_with));
+	EXPECT_EQ(0, regex_search("hello world!", rx, starts_with));
 }
 
-TEST(RegexTest, RegexIgnoreCase) {
-	std::regex rx("world", ignore_case);
-	std::cmatch m;
+TEST(RegexExample, RegexIgnoreCase) {
+	regex rx("world", ignore_case);
+	cmatch m;
 	
-	EXPECT_TRUE(std::regex_match("WORLD", m, rx));
+	EXPECT_TRUE(regex_match("WORLD", m, rx));
 }
 ///////////////////////////
 
