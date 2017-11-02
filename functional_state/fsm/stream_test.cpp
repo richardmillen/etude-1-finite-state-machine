@@ -13,6 +13,8 @@ using namespace std;
 
 const char* STREAM_NAME = "test";
 
+#define NOT_ACCEPT 	0
+
 #define starts_with 	regex_constants::match_continuous
 #define ignore_case	regex_constants::icase
 
@@ -24,30 +26,50 @@ TEST(StreamTest, AcceptAll) {
 	EXPECT_EQ(1, all.accept(""));
 }
 
+TEST(StreamTest, AcceptEmptyString) {
+	stream_t empty(STREAM_NAME, "");
+	
+	EXPECT_EQ(1, empty.accept(""));
+	EXPECT_EQ(NOT_ACCEPT, empty.accept("foo"));
+}
+
+TEST(StreamTest, NotAcceptString) {
+	stream_t foobar(STREAM_NAME, "foo");
+	
+	EXPECT_EQ(NOT_ACCEPT, foobar.accept("bar")); 
+	EXPECT_EQ(NOT_ACCEPT, foobar.accept("foo bar"));
+	EXPECT_EQ(NOT_ACCEPT, foobar.accept("you fool"));
+	EXPECT_EQ(NOT_ACCEPT, foobar.accept(""));
+}
+
+TEST(StreamTest, AcceptString) {
+	stream_t foobar(STREAM_NAME, "foo");
+	
+	EXPECT_EQ(1, foobar.accept("foo")); 
+}
+
 TEST(StreamTest, AcceptRegexString) {
 	stream_t foobar(STREAM_NAME, "foo|bar");
 	
 	EXPECT_EQ(1, foobar.accept("foo"));
 	EXPECT_EQ(1, foobar.accept("bar"));
-	
-	EXPECT_EQ(0, foobar.accept("foo bar"));
-	EXPECT_EQ(0, foobar.accept("you fool"));
-	EXPECT_EQ(0, foobar.accept(""));
 }
 
-TEST(StreamTest, AcceptEmptyString) {
-	stream_t empty(STREAM_NAME, "");
+TEST(StreamTest, AcceptSequence) {
+	stream_t seq(STREAM_NAME, {"#", R"(\d+)", "abc"});
 	
-	EXPECT_EQ(1, empty.accept(""));
-	EXPECT_EQ(0, empty.accept("foo"));
+	EXPECT_EQ(3, seq.accept("#7abc"));
+	EXPECT_EQ(3, seq.accept("#1234567abc"));
+	
+	std::string partial("#7");
+	EXPECT_EQ(NOT_ACCEPT, seq.accept(partial));
+	
+	std::string bad_part1("#!!abc");
+	EXPECT_EQ(NOT_ACCEPT, seq.accept(bad_part1));
+	
+	std::string bad_part2("#7xyz");
+	EXPECT_EQ(NOT_ACCEPT, seq.accept(bad_part2));
 }
-
-/*TEST(StreamTest, AcceptSequence) {
-	stream_t sequence(STREAM_NAME, {"abc", "xyz"});
-	
-	EXPECT_EQ(empty.accept("foo"));
-	EXPECT_EQ(empty.accept(""));
-}*/
 
 
 
