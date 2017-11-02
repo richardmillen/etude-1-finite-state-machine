@@ -19,27 +19,35 @@ const char* STREAM_NAME = "test";
 TEST(StreamTest, AcceptAll) {
 	stream_t all(STREAM_NAME);
 	
-	EXPECT_TRUE(all.accept("foo"));
-	EXPECT_TRUE(all.accept("bar"));
-	EXPECT_TRUE(all.accept("foo\nbar"));
-	EXPECT_TRUE(all.accept(""));
+	EXPECT_EQ(1, all.accept("foo"));
+	EXPECT_EQ(1, all.accept("foo\nbar"));
+	EXPECT_EQ(1, all.accept(""));
 }
 
 TEST(StreamTest, AcceptRegexString) {
-	stream_t empty(STREAM_NAME, "foo|bar");
+	stream_t foobar(STREAM_NAME, "foo|bar");
 	
-	EXPECT_TRUE(empty.accept("foo"));
-	EXPECT_TRUE(empty.accept("bar"));
-	EXPECT_FALSE(empty.accept(""));
-	EXPECT_FALSE(empty.accept("abc"));
+	EXPECT_EQ(1, foobar.accept("foo"));
+	EXPECT_EQ(1, foobar.accept("bar"));
+	
+	EXPECT_EQ(0, foobar.accept("foo bar"));
+	EXPECT_EQ(0, foobar.accept("you fool"));
+	EXPECT_EQ(0, foobar.accept(""));
 }
 
 TEST(StreamTest, AcceptEmptyString) {
 	stream_t empty(STREAM_NAME, "");
 	
-	EXPECT_FALSE(empty.accept("foo"));
-	EXPECT_TRUE(empty.accept(""));
+	EXPECT_EQ(1, empty.accept(""));
+	EXPECT_EQ(0, empty.accept("foo"));
 }
+
+/*TEST(StreamTest, AcceptSequence) {
+	stream_t sequence(STREAM_NAME, {"abc", "xyz"});
+	
+	EXPECT_EQ(empty.accept("foo"));
+	EXPECT_EQ(empty.accept(""));
+}*/
 
 
 
