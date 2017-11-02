@@ -55,20 +55,26 @@ TEST(StreamTest, AcceptRegexString) {
 	EXPECT_EQ(1, foobar.accept("bar"));
 }
 
-TEST(StreamTest, AcceptSequence) {
-	stream_t seq(STREAM_NAME, {"#", R"(\d+)", "abc"});
+TEST(StreamTest, AcceptSimpleSequence) {
+	stream_t seq(STREAM_NAME, {"a", "b", "c"});
+	
+	EXPECT_EQ(3, seq.accept("abc"));
+}
+
+TEST(StreamTest, NotAcceptSequence) {
+	stream_t seq(STREAM_NAME, {"1", "2", "3"});
+	
+	EXPECT_EQ(NOT_ACCEPT, seq.accept("12"));
+	EXPECT_EQ(NOT_ACCEPT, seq.accept("129"));
+	EXPECT_EQ(NOT_ACCEPT, seq.accept("456"));
+	EXPECT_EQ(NOT_ACCEPT, seq.accept(""));
+}
+
+TEST(StreamTest, AcceptComplexSequence) {
+	stream_t seq(STREAM_NAME, {"#|!", R"(\d+)", "[abc]{3}"});
 	
 	EXPECT_EQ(3, seq.accept("#7abc"));
-	EXPECT_EQ(3, seq.accept("#1234567abc"));
-	
-	std::string partial("#7");
-	EXPECT_EQ(NOT_ACCEPT, seq.accept(partial));
-	
-	std::string bad_part1("#!!abc");
-	EXPECT_EQ(NOT_ACCEPT, seq.accept(bad_part1));
-	
-	std::string bad_part2("#7xyz");
-	EXPECT_EQ(NOT_ACCEPT, seq.accept(bad_part2));
+	EXPECT_EQ(3, seq.accept("!1234567cba"));
 }
 
 
