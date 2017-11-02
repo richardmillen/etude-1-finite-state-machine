@@ -8,6 +8,7 @@
 
 #include <regex>
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -20,26 +21,50 @@ const char* STREAM_NAME = "test";
 
 TEST(StreamTest, AcceptAll) {
 	stream_t all(STREAM_NAME);
+	vector<string> values = {
+		"foo",
+		"foo\nbar",
+		""
+	};
 	
-	EXPECT_EQ(1, all.accept("foo"));
-	EXPECT_EQ(1, all.accept("foo\nbar"));
-	EXPECT_EQ(1, all.accept(""));
+	for (value : values) {
+		EXPECT_EQ(1, all.accept(value));
+		EXPECT_EQ(value, all.accepted());
+	}
 }
 
 TEST(StreamTest, AcceptEmptyString) {
 	stream_t empty(STREAM_NAME, "");
 	
 	EXPECT_EQ(1, empty.accept(""));
-	EXPECT_EQ(NOT_ACCEPT, empty.accept("foo"));
+	EXPECT_EQ("", empty.accepted());
+}
+
+TEST(StreamTest, NotAcceptEmptyString) {
+	stream_t empty(STREAM_NAME, "foo");
+	EXPECT_EQ(0, empty.accept(""));
 }
 
 TEST(StreamTest, NotAcceptString) {
 	stream_t foobar(STREAM_NAME, "foo");
+	EXPECT_EQ(0, foobar.accept("bar"));
+}
+
+TEST(StreamTest, NotAcceptWithinString) {
+	stream_t foobar(STREAM_NAME, "foo");
+	vector<string> values = {
+		"foo bar",
+		"you fool!"
+	};
 	
-	EXPECT_EQ(NOT_ACCEPT, foobar.accept("bar")); 
-	EXPECT_EQ(NOT_ACCEPT, foobar.accept("foo bar"));
-	EXPECT_EQ(NOT_ACCEPT, foobar.accept("you fool"));
-	EXPECT_EQ(NOT_ACCEPT, foobar.accept(""));
+	for (value : values)
+		EXPECT_EQ(0, foobar.accept(value));
+}
+
+TEST(StreamTest, NotAcceptSubstring) {
+	stream_t foobar(STREAM_NAME, "foo");
+
+	EXPECT_EQ(0, foobar.accept("fo"));
 }
 
 TEST(StreamTest, AcceptString) {

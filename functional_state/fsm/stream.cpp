@@ -6,6 +6,7 @@
 
 #include <string>
 #include <regex>
+#include <cassert>
 
 #define STARTS_WITH	std::regex_constants::match_continuous
 
@@ -47,8 +48,9 @@ int stream_t::accept(const std::string& input) {
 	return accepted_.size();
 }
 
-std::vector<std::string>& stream_t::accepted() {
-	return accepted_;
+const std::string& stream_t::accepted(unsigned seq_index) {
+	assert(seq_index < accepted_.size());
+	return accepted_[seq_index];
 }
 
 

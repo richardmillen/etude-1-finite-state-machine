@@ -16,7 +16,7 @@ public:
 	stream_t(const std::string& name, const std::string& match);
 	stream_t(const std::string& name, std::initializer_list<std::string> match_seq);
 	int accept(const std::string& input);
-	std::vector<std::string>& accepted();
+	const std::string& accepted(unsigned seq_index = 0);
 private:
 	std::string name_;
 	std::vector<std::regex> matches_;
