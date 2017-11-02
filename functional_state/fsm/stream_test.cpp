@@ -23,7 +23,7 @@ TEST(StreamTest, AcceptAll) {
 		""
 	};
 	
-	for (value : values) {
+	for (auto& value : values) {
 		EXPECT_EQ(1, all.accept(value));
 		EXPECT_EQ(value, all.accepted());
 	}
@@ -53,7 +53,7 @@ TEST(StreamTest, NotAcceptWithinString) {
 		"you fool!"
 	};
 	
-	for (value : values)
+	for (auto& value : values)
 		EXPECT_EQ(NOT_ACCEPT, foobar.accept(value));
 }
 

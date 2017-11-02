@@ -35,7 +35,7 @@ int stream_t::accept(const std::string& input) {
 	std::cmatch res;
 	auto pos = 0u;
 	
-	for (m : matches_) {
+	for (auto& m : matches_) {
 		if (!std::regex_search(input.c_str() + pos, res, m, STARTS_WITH))
 			return 0;
 		accepted_.push_back(res[0]);
