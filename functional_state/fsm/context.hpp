@@ -14,6 +14,8 @@ public:
 	bool is_current(state_t& s);
 	void start(state_t& s);
 private:
-	state_t* current_;				// TODO: is this safe?
+	state_t* current_;			// TODO: is this safe?
 };
+
+
 
