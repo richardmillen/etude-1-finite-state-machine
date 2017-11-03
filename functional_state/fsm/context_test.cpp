@@ -8,11 +8,14 @@
 
 #include <gtest/gtest.h>
 
+#include <string>
+#include <functional>
+
 class ContextTest : public testing::Test
 {
 public:
 	ContextTest() : state1("state1"), state2("state2"), counter(0) {}
-private:
+public:
 	context_t context;
 	state_t state1;
 	state_t state2;
@@ -29,30 +32,35 @@ TEST_F(ContextTest, StartStateIsCurrent) {
 	ASSERT_TRUE(context.is_current(state1));
 }
 
-TEST_F(ContextTest, StateHandlesAllEvents) {
-	stream_t any("any");
-	state1.on_event(any, [&](ctx) {
+TEST_F(ContextTest, StateHandlesSingleEvent) {
+	stream_t plus("plus (increment counter)", R"(\+)");
+	state1.on_event(plus, [&]() {
 		++counter;
 	});
+	
 	context.start(state1);
 	
-	context.execute("foo");
+	EXPECT_FALSE(context.execute("abc"));
+	EXPECT_FALSE(context.execute("123"));
+	EXPECT_FALSE(context.execute("-"));
+	EXPECT_FALSE(context.execute("/"));
+	EXPECT_FALSE(context.execute(""));
+	
+	EXPECT_TRUE(context.execute("+"));
+	
 	EXPECT_EQ(1, counter);
-
-	context.execute("bar");
-	EXPECT_EQ(2, counter);
 }
 
 
 
 
-
 /*
-no state >> error ?
 event not handled
 state handles event
+handler reads from stream
 state moves to next (single handler)
 state moves to next (multiple handlers)
+handler writes to next stream
 state on enter
 state on exit
 state on error ?
@@ -63,6 +71,19 @@ substate handles event
 timer
 timer changes
 timer changes state
+
+no state >> assertion error
+
+event_t
+-------
+
+next_state(state_t s)
+next_state(condition_t c, state_t[] s)
+next_state(state_t[] s)
+
+must_next(state_t s)
+must_next(condition_t c, state_t[] s);
+must_next(state_t[] s)
 
 state_t
 -------
@@ -75,7 +96,7 @@ add_substate(state_t s)
 add_condition(condition_t c)
 add_conditions(condition_t[], binary_function<>, condition_t[])
 
-event_t on_event(stream_t input, std::function<void(context_t)> fn)
+
 
 on_enter(std::function<void(context_t)> fn)
 
