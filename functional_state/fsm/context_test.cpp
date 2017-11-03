@@ -58,8 +58,11 @@ state on exit
 state on error ?
 state doesn't move to conditional next
 state moves to conditional next
+state moves to one of many conditional next/s
 substate handles event
-
+timer
+timer changes
+timer changes state
 
 state_t
 -------
