@@ -8,6 +8,7 @@
 
 #include <gtest/gtest.h>
 
+#include <iostream>
 #include <string>
 #include <sstream>
 #include <functional>
@@ -71,6 +72,29 @@ TEST_F(ContextTest, EventReadsFromStream) {
 	
 	EXPECT_EQ("abc", oss.str());
 }
+
+TEST_F(ContextTest, StateTransitions) {
+	string str;
+	
+	stream_t next("go to next", "next(,)?");
+	state1.on_event(next, [](context_t& c) {
+		str.append(c.input().accepted());
+	}).next_state(state2);
+
+	stream_t prev("go to previous", ",?prev");
+	state2.on_event(prev, [](context_t& c) {
+		str.append(c.input().accepted());
+	}).next_state(state1);
+	
+	context.start(state1);
+	
+	context.execute("next,");
+	context.execute("prev");
+	
+	ASSERT_EQ("next,prev", str);
+}
+
+
 
 /*
 state moves to next (single handler)
