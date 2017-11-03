@@ -120,6 +120,18 @@ on_exit(std::function<void(context_t)> fn)
 error_t on_error(std::function<void(context_t)> fn) 
 
 
+condition_t
+-----------
+
+condition_t()
+condition_t(std::function<bool(state_t)> fn)
+
+expr() -> std::string&		<-- ??
+
+eval(std::function<bool(state_t)> fn)
+
+
+
 context_t:
 
 nitial_state(state_t[] s)

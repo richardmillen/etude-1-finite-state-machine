@@ -19,17 +19,6 @@ TEST_F(ConditionTest, Foo) {
 
 
 /*
-condition_t
------------
-
-condition_t()
-condition_t(std::function<bool(state_t)> fn)
-
-expr() -> std::string&		<-- ??
-
-eval(std::function<bool(state_t)> fn)
-
-
 */
 
 
