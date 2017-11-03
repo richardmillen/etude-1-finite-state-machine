@@ -18,7 +18,7 @@ class state_t {
 public:
 	state_t(const std::string& name);
 	const std::string& name();
-	event_t& on_event(stream_t& in, std::function<void()> handler);
+	event_t& on_event(stream_t& in, std::function<void(context_t&)> handler);
 	bool execute(const std::string& input);
 private:
 	context_t* context_;			// TODO: is this safe?

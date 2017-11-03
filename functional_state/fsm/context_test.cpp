@@ -34,7 +34,7 @@ TEST_F(ContextTest, StartStateIsCurrent) {
 
 TEST_F(ContextTest, StateHandlesSingleEvent) {
 	stream_t plus("plus (increment counter)", R"(\+)");
-	state1.on_event(plus, [&]() {
+	state1.on_event(plus, [&](context_t& c) {
 		++counter;
 	});
 	
@@ -55,8 +55,6 @@ TEST_F(ContextTest, StateHandlesSingleEvent) {
 
 
 /*
-event not handled
-state handles event
 handler reads from stream
 state moves to next (single handler)
 state moves to next (multiple handlers)
