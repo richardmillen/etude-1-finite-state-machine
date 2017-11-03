@@ -25,11 +25,12 @@ bool state_t::execute(const std::string& input) {
 	assert(context_);
 	for (auto& e : events_) {
 		if (e.stream().accept(input) > 0) {
-			e.raise(*context_);
+			context_->raise_event(e);
 			return true;
 		}
 	}
 	return false;
 }
+
 
 

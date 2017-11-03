@@ -9,17 +9,19 @@
 #include <gtest/gtest.h>
 
 #include <string>
+#include <sstream>
 #include <functional>
+
+using namespace std;
 
 class ContextTest : public testing::Test
 {
 public:
-	ContextTest() : state1("state1"), state2("state2"), counter(0) {}
+	ContextTest() : state1("state1"), state2("state2") {}
 public:
 	context_t context;
 	state_t state1;
 	state_t state2;
-	int counter;
 };
 
 TEST_F(ContextTest, NoCurrentState) {
@@ -33,6 +35,8 @@ TEST_F(ContextTest, StartStateIsCurrent) {
 }
 
 TEST_F(ContextTest, StateHandlesSingleEvent) {
+	auto counter = 0;
+	
 	stream_t plus("plus (increment counter)", R"(\+)");
 	state1.on_event(plus, [&](context_t& c) {
 		++counter;
@@ -51,11 +55,24 @@ TEST_F(ContextTest, StateHandlesSingleEvent) {
 	EXPECT_EQ(1, counter);
 }
 
-
-
+TEST_F(ContextTest, EventReadsFromStream) {
+	ostringstream oss;
+	
+	stream_t any("all events");
+	state1.on_event(any, [&](context_t& c) {
+		oss << c.input().accepted();
+	});
+	
+	context.start(state1);
+	
+	context.execute("a");
+	context.execute("b");
+	context.execute("c");
+	
+	EXPECT_EQ("abc", oss.str());
+}
 
 /*
-handler reads from stream
 state moves to next (single handler)
 state moves to next (multiple handlers)
 handler writes to next stream

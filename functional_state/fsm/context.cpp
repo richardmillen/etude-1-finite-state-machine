@@ -25,5 +25,14 @@ bool context_t::execute(const std::string& input) {
 	return current_->execute(input);
 }
 
+void context_t::raise_event(event_t& e) {
+	raising_ = &e;
+	e.raise(*this);
+	raising_ = nullptr;
+}
 
+stream_t& context_t::input() {
+	assert(raising_);
+	return raising_->stream();
+}
 
