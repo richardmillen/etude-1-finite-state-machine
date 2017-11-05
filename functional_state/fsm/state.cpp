@@ -21,6 +21,10 @@ event_t& state_t::on_event(stream_t& in, std::function<void(context_t&)> handler
 	return events_.back();
 }
 
+void state_t::on_enter(std::function<void(context_t&)> handler) {
+	enter_handler_ = handler;
+}
+
 bool state_t::execute(const std::string& input) {
 	assert(context_);
 	for (auto& e : events_) {

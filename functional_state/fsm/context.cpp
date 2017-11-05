@@ -18,6 +18,11 @@ bool context_t::is_current(state_t& s) {
 void context_t::start(state_t& s) {
 	current_ = &s;
 	s.context_ = this;
+	
+	if (!s.enter_handler_)
+		return;
+	
+	s.enter_handler_(*this);
 }
 
 bool context_t::execute(const std::string& input) {

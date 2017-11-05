@@ -179,6 +179,25 @@ TEST_F(ContextTest, StateExecutesNextState) {
 	ASSERT_EQ("1:a 2:b 1:c 2:d 1:END E:[state1 says hi!]", oss.str());
 }
 
+TEST_F(ContextTest, StateEnteredEvent) {
+	bool entered = false;
+	
+	stream_t next("go to next", "next");
+	
+	state1.on_event(next, [](context_t& c) {
+		// nothing to do here
+	}).next_state(state2);
+	
+	state2.on_enter([&](context_t& c) {
+		entered = true;
+	});
+	
+	context.start(state1);
+	
+	context.execute("next");
+	
+	ASSERT_TRUE(entered);
+}
 
 
 /*
