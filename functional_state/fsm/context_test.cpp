@@ -73,27 +73,74 @@ TEST_F(ContextTest, EventReadsFromStream) {
 	EXPECT_EQ("abc", str);
 }
 
-TEST_F(ContextTest, StateTransitions) {
-	ostringstream oss;
-	
-	stream_t next("go to next", "next");
-	stream_t prev("go to previous", "prev");
-	
-	state1.on_event(next, [&](context_t& c) {
-		oss << c.input();
-	}).next_state(state2);
 
-	state2.on_event(prev, [&](context_t& c) {
-		oss << "," << c.input();
-	}).next_state(state1);
+
+/*
+TEST_F(ContextTest, StateHandlesMultipleEvents) {
+	auto counter = 0;
+	
+	stream_t inc("increment counter", "i");
+	stream_t dec("decrement counter", "d");
+	
+	state1.on_event(inc, [&](context_t& c) {
+		++counter;
+	});
+	
+	state1.on_event(dec, [&](context_t& c) {
+		--counter;
+	});
 	
 	context.start(state1);
 	
-	context.execute("next");
-	context.execute("prev");
+	context.execute("i");
+	context.execute("i");
+	context.execute("i");
+	context.execute("d");
+	context.execute("d");
 	
-	ASSERT_EQ("next,prev", oss.str());
+	ASSERT_EQ(1, counter);
 }
+
+
+TEST_F(ContextTest, StateExecutesNextState) {
+	ostringstream oss;
+	
+	state_t end("end");
+	
+	stream_t move("move to next state", R"(\d)");
+	stream_t skip("skip to end", "SKIP");
+	stream_t last("last event", {R"(state\d)", R"(\d)"});
+	
+	state1.on_event(move, [&](context_t& c) {
+		oss << "1:" << c.input() << " ";
+	}).next_state(state2);
+	
+	state1.on_event(skip, [&](context_t& c) {
+		oss << "1:" << c.input() << " ";
+		c.next_execute("state1");
+	}).next_state(end);
+	
+	state2.on_event(move, [&](context_t& c) {
+		oss << "2:" << c.input() << " ";
+	}).next_state(state1);
+	
+	end.on_event(last, [&](context_t& c) {
+		oss << "E:" << c.input(1) << " [from: " << c.input(0) << "]";
+	});
+	
+	context.start(state1);
+	
+	context.execute("a");
+	context.execute("b");
+	context.execute("c");
+	context.execute("d");
+	context.execute("SKIP");
+	context.execute("e");
+	
+	ASSERT_EQ("1:a 2:b 1:c 2:d 1:SKIP E:e [from: state1]", oss.str());
+}
+
+
 
 TEST_F(ContextTest, StreamSharedByStates) {
 	ostringstream oss;
@@ -116,6 +163,35 @@ TEST_F(ContextTest, StreamSharedByStates) {
 	
 	ASSERT_EQ("1a2b2c", oss.str());
 }
+
+
+
+
+TEST_F(ContextTest, StateTransitions) {
+	ostringstream oss;
+	
+	stream_t next("go to next", "next");
+	stream_t prev("go to previous", "prev");
+	
+	state1.on_event(next, [&](context_t& c) {
+		oss << c.input();
+	}).next_state(state2);
+
+	state2.on_event(prev, [&](context_t& c) {
+		oss << "," << c.input();
+	}).next_state(state1);
+	
+	context.start(state1);
+	
+	context.execute("next");
+	context.execute("prev");
+	
+	ASSERT_EQ("next,prev", oss.str());
+}
+
+
+
+*/
 
 
 /*
