@@ -142,23 +142,14 @@ TEST_F(ContextTest, StreamSharedByStates) {
 	ASSERT_EQ("1a2b2c", oss.str());
 }
 
-
-
-
-
-
-
-/*
-
-
 TEST_F(ContextTest, StateExecutesNextState) {
 	ostringstream oss;
 	
 	state_t end("end");
 	
-	stream_t move("move to next state", R"(\d)");
-	stream_t skip("skip to end", "SKIP");
-	stream_t last("last event", {R"(state\d)", R"(\d)"});
+	stream_t move("move to next state", "[a-z]{1}");
+	stream_t skip("skip to end", "END");
+	stream_t last("last event (format: from,message)", {R"(state\d)", ",", ".+"});
 	
 	state1.on_event(move, [&](context_t& c) {
 		oss << "1:" << c.input() << " ";
@@ -166,7 +157,7 @@ TEST_F(ContextTest, StateExecutesNextState) {
 	
 	state1.on_event(skip, [&](context_t& c) {
 		oss << "1:" << c.input() << " ";
-		c.next_execute("state1");
+		c.next_execute("state1,hi!");
 	}).next_state(end);
 	
 	state2.on_event(move, [&](context_t& c) {
@@ -174,7 +165,7 @@ TEST_F(ContextTest, StateExecutesNextState) {
 	}).next_state(state1);
 	
 	end.on_event(last, [&](context_t& c) {
-		oss << "E:" << c.input(1) << " [from: " << c.input(0) << "]";
+		oss << "E:[" << c.input(0) << " says " << c.input(2) << "]";
 	});
 	
 	context.start(state1);
@@ -183,20 +174,14 @@ TEST_F(ContextTest, StateExecutesNextState) {
 	context.execute("b");
 	context.execute("c");
 	context.execute("d");
-	context.execute("SKIP");
-	context.execute("e");
+	context.execute("END");
 	
-	ASSERT_EQ("1:a 2:b 1:c 2:d 1:SKIP E:e [from: state1]", oss.str());
+	ASSERT_EQ("1:a 2:b 1:c 2:d 1:END E:[state1 says hi!]", oss.str());
 }
 
 
 
-
-*/
-
-
 /*
-handler writes to next stream
 state on enter
 state on exit
 state on error ?

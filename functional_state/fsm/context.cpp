@@ -26,6 +26,8 @@ bool context_t::execute(const std::string& input) {
 }
 
 void context_t::raise_event(event_t& e) {
+	exec_next_ = false;
+	
 	raising_ = &e;
 	e.raise(*this);
 	raising_ = nullptr;
@@ -34,10 +36,24 @@ void context_t::raise_event(event_t& e) {
 		return;
 	
 	start(e.next_state());
+	
+	if (!exec_next_)
+		return;
+	
+	execute(next_in_);
 }
 
 const std::string& context_t::input(unsigned seq_index) {
 	assert(raising_);
 	return raising_->stream().accepted(seq_index);
 }
+
+void context_t::next_execute(const std::string& input) {
+	exec_next_ = true;
+	next_in_.assign(input);
+}
+
+
+
+
 

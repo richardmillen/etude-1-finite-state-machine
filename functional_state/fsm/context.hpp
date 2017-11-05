@@ -19,9 +19,12 @@ public:
 	bool execute(const std::string& input);
 	void raise_event(event_t& e);
 	const std::string& input(unsigned seq_index = 0);
+	void next_execute(const std::string& input);
 private:
 	state_t* current_;			// TODO: is this safe?
 	event_t* raising_;			// TODO: is this safe?
+	std::string next_in_;
+	bool exec_next_;
 };
 
 
