@@ -18,7 +18,7 @@ public:
 	void start(state_t& s);
 	bool execute(const std::string& input);
 	void raise_event(event_t& e);
-	stream_t& input();
+	const std::string& input(unsigned seq_index = 0);
 private:
 	state_t* current_;			// TODO: is this safe?
 	event_t* raising_;			// TODO: is this safe?

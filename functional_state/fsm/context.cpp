@@ -29,10 +29,17 @@ void context_t::raise_event(event_t& e) {
 	raising_ = &e;
 	e.raise(*this);
 	raising_ = nullptr;
+	
+	if (!e.has_next())
+		return;
+	
+	auto next = e.next_state();
+	current_ = &next;
+	next.context_ = this;
 }
 
-stream_t& context_t::input() {
+const std::string& context_t::input(unsigned seq_index) {
 	assert(raising_);
-	return raising_->stream();
+	return raising_->stream().accepted(seq_index);
 }
 

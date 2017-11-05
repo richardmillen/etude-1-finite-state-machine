@@ -61,7 +61,7 @@ TEST_F(ContextTest, EventReadsFromStream) {
 	
 	stream_t any("all events");
 	state1.on_event(any, [&](context_t& c) {
-		oss << c.input().accepted();
+		oss << c.input();
 	});
 	
 	context.start(state1);
@@ -77,13 +77,14 @@ TEST_F(ContextTest, StateTransitions) {
 	string str;
 	
 	stream_t next("go to next", "next(,)?");
-	state1.on_event(next, [](context_t& c) {
-		str.append(c.input().accepted());
+	stream_t prev("go to previous", ",?prev");
+	
+	state1.on_event(next, [&](context_t& c) {
+		str.append(c.input());
 	}).next_state(state2);
 
-	stream_t prev("go to previous", ",?prev");
-	state2.on_event(prev, [](context_t& c) {
-		str.append(c.input().accepted());
+	state2.on_event(prev, [&](context_t& c) {
+		str.append(c.input());
 	}).next_state(state1);
 	
 	context.start(state1);
