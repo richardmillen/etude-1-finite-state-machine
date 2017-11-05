@@ -98,10 +98,58 @@ TEST_F(ContextTest, EventReadsFromStream) {
 	EXPECT_EQ("abc", str);
 }
 
+TEST_F(ContextTest, StateTransitions) {
+	ostringstream oss;
+	
+	stream_t next("go to next", "next");
+	stream_t prev("go to previous", "prev");
+	
+	state1.on_event(next, [&](context_t& c) {
+		oss << c.input();
+	}).next_state(state2);
+
+	state2.on_event(prev, [&](context_t& c) {
+		oss << "," << c.input();
+	}).next_state(state1);
+	
+	context.start(state1);
+	
+	context.execute("next");
+	context.execute("prev");
+	
+	ASSERT_EQ("next,prev", oss.str());
+}
+
+
+
 
 
 
 /*
+
+TEST_F(ContextTest, StreamSharedByStates) {
+	ostringstream oss;
+	
+	stream_t shared("shared stream", "[abc]");
+	
+	state1.on_event(shared, [&](context_t& c) {
+		oss << "1" << c.input();
+	}).next_state(state2);
+	
+	state2.on_event(shared, [&](context_t& c) {
+		oss << "2" << c.input();
+	});
+	
+	context.start(state1);
+	
+	context.execute("a");
+	context.execute("b");
+	context.execute("c");
+	
+	ASSERT_EQ("1a2b2c", oss.str());
+}
+
+
 
 TEST_F(ContextTest, StateExecutesNextState) {
 	ostringstream oss;
@@ -141,54 +189,6 @@ TEST_F(ContextTest, StateExecutesNextState) {
 	ASSERT_EQ("1:a 2:b 1:c 2:d 1:SKIP E:e [from: state1]", oss.str());
 }
 
-
-
-TEST_F(ContextTest, StreamSharedByStates) {
-	ostringstream oss;
-	
-	stream_t shared("shared stream", "[abc]");
-	
-	state1.on_event(shared, [&](context_t& c) {
-		oss << "1" << c.input();
-	}).next_state(state2);
-	
-	state2.on_event(shared, [&](context_t& c) {
-		oss << "2" << c.input();
-	});
-	
-	context.start(state1);
-	
-	context.execute("a");
-	context.execute("b");
-	context.execute("c");
-	
-	ASSERT_EQ("1a2b2c", oss.str());
-}
-
-
-
-
-TEST_F(ContextTest, StateTransitions) {
-	ostringstream oss;
-	
-	stream_t next("go to next", "next");
-	stream_t prev("go to previous", "prev");
-	
-	state1.on_event(next, [&](context_t& c) {
-		oss << c.input();
-	}).next_state(state2);
-
-	state2.on_event(prev, [&](context_t& c) {
-		oss << "," << c.input();
-	}).next_state(state1);
-	
-	context.start(state1);
-	
-	context.execute("next");
-	context.execute("prev");
-	
-	ASSERT_EQ("next,prev", oss.str());
-}
 
 
 

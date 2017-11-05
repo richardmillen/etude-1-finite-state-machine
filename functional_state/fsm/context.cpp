@@ -33,9 +33,7 @@ void context_t::raise_event(event_t& e) {
 	if (!e.has_next())
 		return;
 	
-	auto next = e.next_state();
-	current_ = &next;
-	next.context_ = this;
+	start(e.next_state());
 }
 
 const std::string& context_t::input(unsigned seq_index) {
