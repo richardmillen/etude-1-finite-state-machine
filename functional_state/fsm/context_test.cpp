@@ -56,26 +56,6 @@ TEST_F(ContextTest, StateHandlesSingleEvent) {
 	EXPECT_EQ(1, counter);
 }
 
-TEST_F(ContextTest, EventReadsFromStream) {
-	string str;
-	
-	stream_t any("all events");
-	state1.on_event(any, [&](context_t& c) {
-		str.append(c.input());
-	});
-	
-	context.start(state1);
-	
-	context.execute("a");
-	context.execute("b");
-	context.execute("c");
-	
-	EXPECT_EQ("abc", str);
-}
-
-
-
-/*
 TEST_F(ContextTest, StateHandlesMultipleEvents) {
 	auto counter = 0;
 	
@@ -101,6 +81,27 @@ TEST_F(ContextTest, StateHandlesMultipleEvents) {
 	ASSERT_EQ(1, counter);
 }
 
+TEST_F(ContextTest, EventReadsFromStream) {
+	string str;
+	
+	stream_t any("all events");
+	state1.on_event(any, [&](context_t& c) {
+		str.append(c.input());
+	});
+	
+	context.start(state1);
+	
+	context.execute("a");
+	context.execute("b");
+	context.execute("c");
+	
+	EXPECT_EQ("abc", str);
+}
+
+
+
+
+/*
 
 TEST_F(ContextTest, StateExecutesNextState) {
 	ostringstream oss;
