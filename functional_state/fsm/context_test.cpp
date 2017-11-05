@@ -57,11 +57,11 @@ TEST_F(ContextTest, StateHandlesSingleEvent) {
 }
 
 TEST_F(ContextTest, EventReadsFromStream) {
-	ostringstream oss;
+	string str;
 	
 	stream_t any("all events");
 	state1.on_event(any, [&](context_t& c) {
-		oss << c.input();
+		str.append(c.input());
 	});
 	
 	context.start(state1);
@@ -70,36 +70,55 @@ TEST_F(ContextTest, EventReadsFromStream) {
 	context.execute("b");
 	context.execute("c");
 	
-	EXPECT_EQ("abc", oss.str());
+	EXPECT_EQ("abc", str);
 }
 
 TEST_F(ContextTest, StateTransitions) {
-	string str;
+	ostringstream oss;
 	
-	stream_t next("go to next", "next(,)?");
-	stream_t prev("go to previous", ",?prev");
+	stream_t next("go to next", "next");
+	stream_t prev("go to previous", "prev");
 	
 	state1.on_event(next, [&](context_t& c) {
-		str.append(c.input());
+		oss << c.input();
 	}).next_state(state2);
 
 	state2.on_event(prev, [&](context_t& c) {
-		str.append(c.input());
+		oss << "," << c.input();
 	}).next_state(state1);
 	
 	context.start(state1);
 	
-	context.execute("next,");
+	context.execute("next");
 	context.execute("prev");
 	
-	ASSERT_EQ("next,prev", str);
+	ASSERT_EQ("next,prev", oss.str());
+}
+
+TEST_F(ContextTest, StreamSharedByStates) {
+	ostringstream oss;
+	
+	stream_t shared("shared stream", "[abc]");
+	
+	state1.on_event(shared, [&](context_t& c) {
+		oss << "1" << c.input();
+	}).next_state(state2);
+	
+	state2.on_event(shared, [&](context_t& c) {
+		oss << "2" << c.input();
+	});
+	
+	context.start(state1);
+	
+	context.execute("a");
+	context.execute("b");
+	context.execute("c");
+	
+	ASSERT_EQ("1a2b2c", oss.str());
 }
 
 
-
 /*
-state moves to next (single handler)
-state moves to next (multiple handlers)
 handler writes to next stream
 state on enter
 state on exit
@@ -159,7 +178,7 @@ eval(std::function<bool(state_t)> fn)
 
 context_t:
 
-nitial_state(state_t[] s)
+initial_state(state_t[] s)
 reset() <-- ??
 
 stream()
