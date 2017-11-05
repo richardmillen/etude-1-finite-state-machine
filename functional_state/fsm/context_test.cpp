@@ -120,13 +120,6 @@ TEST_F(ContextTest, StateTransitions) {
 	ASSERT_EQ("next,prev", oss.str());
 }
 
-
-
-
-
-
-/*
-
 TEST_F(ContextTest, StreamSharedByStates) {
 	ostringstream oss;
 	
@@ -149,6 +142,13 @@ TEST_F(ContextTest, StreamSharedByStates) {
 	ASSERT_EQ("1a2b2c", oss.str());
 }
 
+
+
+
+
+
+
+/*
 
 
 TEST_F(ContextTest, StateExecutesNextState) {
