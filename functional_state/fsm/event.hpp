@@ -5,6 +5,7 @@
 #pragma once
 
 #include <functional>
+#include <initializer_list>
 #include <vector>
 
 class context_t;
@@ -17,12 +18,12 @@ public:
 	stream_t& stream();
 	void raise(context_t& ctx);
 	void next_state(state_t& s);
-	state_t& next_state();
-	bool has_next();
+	void next_state(std::initializer_list<std::reference_wrapper<state_t>> s);
+	state_t* next_state();
 private:
 	stream_t& in_;
 	std::function<void(context_t&)> handler_;
-	std::vector<state_t*> next_states_;
+	std::vector<std::reference_wrapper<state_t>> next_states_;
 };
 
 

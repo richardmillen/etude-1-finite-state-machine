@@ -18,11 +18,12 @@ using namespace std;
 class ContextTest : public testing::Test
 {
 public:
-	ContextTest() : state1("state1"), state2("state2") {}
+	ContextTest() : state1("state1"), state2("state2"), state3("state3") {}
 public:
 	context_t context;
 	state_t state1;
 	state_t state2;
+	state_t state3;
 };
 
 TEST_F(ContextTest, NoCurrentState) {
@@ -222,6 +223,30 @@ TEST_F(ContextTest, FalseConditionPreventsTransition) {
 	
 	ASSERT_TRUE(context.is_current(state1));
 }
+
+TEST_F(ContextTest, TransitionToOneOfMany) {
+	auto which = 0;
+	
+	stream_t opt("go to state 2 or 3", "[23]");
+	
+	state1.on_event(opt, [&](context_t& c) {
+		which = stoi(c.input());
+	}).next_state({state2, state3});
+	
+	state2.add_condition(condition_t([&](state_t& s) {
+		return which == 2;
+	}));
+	state2.add_condition(condition_t([&](state_t& s) {
+		return which == 3;
+	}));
+
+	context.start(state1);
+	
+	context.execute("3");
+	
+	ASSERT_TRUE(context.is_current(state3));
+}
+
 
 
 

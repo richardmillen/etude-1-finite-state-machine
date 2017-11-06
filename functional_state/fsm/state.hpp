@@ -25,7 +25,6 @@ public:
 	void on_enter(std::function<void(context_t&)> handler);
 	void on_exit(std::function<void(context_t&)> handler);
 	bool execute(const std::string& input);
-private:
 	bool can_enter();
 private:
 	context_t* context_;			// TODO: is this safe?

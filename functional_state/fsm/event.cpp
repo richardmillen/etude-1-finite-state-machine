@@ -3,8 +3,14 @@
 ///////////////
 
 #include "event.hpp"
+#include "state.hpp"
 
 #include <cassert>
+#include <functional>
+#include <initializer_list>
+#include <algorithm>
+
+using namespace std;
 
 event_t::event_t(stream_t& in, std::function<void(context_t&)> fn) 
 	: in_(in), handler_(fn) {
@@ -19,16 +25,24 @@ void event_t::raise(context_t& ctx) {
 }
 
 void event_t::next_state(state_t& s) {
-	next_states_.push_back(&s);
+	next_states_.push_back(s);
 }
 
-state_t& event_t::next_state() {
-	assert(has_next());
-	return *(next_states_.front());
+void event_t::next_state(initializer_list<reference_wrapper<state_t>> s) {
+	next_states_.insert(next_states_.end(), s.begin(), s.end());
 }
 
-bool event_t::has_next() {
-	return next_states_.size() > 0;
+state_t* event_t::next_state() {
+	auto it = find_if(next_states_.begin(), next_states_.end(), 
+			  [](const reference_wrapper<state_t>& s) {
+		return s.get().can_enter();
+	});
+	if (it == next_states_.end())
+		return nullptr;
+	return &((*it).get());
+	
+	auto& s = (*it).get();
+	return &s;
 }
 
 

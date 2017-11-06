@@ -38,10 +38,11 @@ void context_t::raise_event(event_t& e) {
 	e.raise(*this);
 	raising_ = nullptr;
 	
-	if (!e.has_next())
+	auto next = e.next_state();
+	if (!next)
 		return;
 	
-	if (!start(e.next_state()))
+	if (!start(*next))
 		return;
 	
 	if (!exec_next_)
