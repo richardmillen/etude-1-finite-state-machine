@@ -247,36 +247,40 @@ TEST_F(ContextTest, TransitionToOneOfMany) {
 	ASSERT_TRUE(context.is_current(state3));
 }
 
-TEST_F(ContextTest, ParentStateHandlesEvent) {
-	auto handled_by_parent = false;
+TEST_F(ContextTest, AncestorOfStateHandlesEvent) {
+	auto handled_by_ancestor = false;
 	
+	state_t grand_parent("grand parent");
 	state_t parent("parent");
 	state_t child("child");
 	
 	stream_t any("handle any input");
 	
-	parent.on_event(any, [&](context_t& c) {
-		handled_by_parent = true;
+	grand_parent.on_event(any, [&](context_t& c) {
+		handled_by_ancestor = true;
 	});
 	
-	parent.add_substate(child);
+	grand_parent.add_substate(parent).add_substate(child);
 	
 	context.start(child);
 	
 	EXPECT_TRUE(context.is_current(child));
 	EXPECT_FALSE(context.is_current(parent));
+	EXPECT_FALSE(context.is_current(grand_parent));
 	
 	context.execute("hello");
 	
-	EXPECT_TRUE(handled_by_parent);
+	EXPECT_TRUE(handled_by_ancestor);
 }
+
+
+
 
 
 
 
 /*
 state moves to conditional next
-substate handles event
 timer
 timer changes
 timer changes state

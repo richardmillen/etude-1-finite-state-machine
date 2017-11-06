@@ -22,9 +22,10 @@ event_t& state_t::on_event(stream_t& in, std::function<void(context_t&)> handler
 	return events_.back();
 }
 
-void state_t::add_substate(state_t& s) {
+state_t& state_t::add_substate(state_t& s) {
 	assert(s.parent_ == nullptr);
 	s.parent_ = this;
+	return s;
 }
 
 void state_t::add_condition(condition_t& c) {

@@ -20,7 +20,7 @@ public:
 	state_t(const std::string& name);
 	const std::string& name();
 	event_t& on_event(stream_t& in, std::function<void(context_t&)> handler);
-	void add_substate(state_t& s);
+	state_t& add_substate(state_t& s);
 	void add_condition(condition_t& c);
 	void add_condition(condition_t&& c);
 	void on_enter(std::function<void(context_t&)> handler);
