@@ -186,9 +186,7 @@ TEST_F(FsmTest, StateEnteredEvent) {
 	
 	stream_t next("go to next", "next");
 	
-	state1.on_event(next, [](context_t& c) {
-		/* 'next' event handler */
-	}).next_state(state2);
+	state1.on_event(next, [](context_t& c) {}).next_state(state2);
 	
 	state1.on_exit([&](context_t& c) {
 		exited = true;
@@ -209,9 +207,7 @@ TEST_F(FsmTest, StateEnteredEvent) {
 TEST_F(FsmTest, FalseConditionPreventsTransition) {
 	stream_t next("go to next", "next");
 	
-	state1.on_event(next, [](context_t& c) {
-		/* move to next state */
-	}).next_state(state2);
+	state1.on_event(next, [](context_t& c) {}).next_state(state2);
 	
 	state2.add_condition(condition_t([](state_t& s) {
 		return false;
@@ -273,7 +269,19 @@ TEST_F(FsmTest, AncestorOfStateHandlesEvent) {
 	EXPECT_TRUE(handled_by_ancestor);
 }
 
-
+TEST_F(FsmTest, MustMoveToNextStateFails) {
+	stream_t any("accept any input");
+	
+	state1.on_event(any, [](context_t& c) {}).must_next(state2);
+	
+	state2.add_condition(condition_t([&](state_t& s) {
+		return false;
+	}));
+	
+	context.start(state1);
+	
+	ASSERT_ANY_THROW(context.execute("foo"));
+}
 
 
 

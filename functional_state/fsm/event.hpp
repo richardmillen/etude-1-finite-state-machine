@@ -19,11 +19,13 @@ public:
 	void raise(context_t& ctx);
 	void next_state(state_t& s);
 	void next_state(std::initializer_list<std::reference_wrapper<state_t>> s);
+	void must_next(state_t& s);
 	state_t* next_state();
 private:
 	stream_t& in_;
 	std::function<void(context_t&)> handler_;
 	std::vector<std::reference_wrapper<state_t>> next_states_;
+	bool must_;
 };
 
 
