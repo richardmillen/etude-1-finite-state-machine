@@ -40,9 +40,6 @@ state_t* event_t::next_state() {
 	if (it == next_states_.end())
 		return nullptr;
 	return &((*it).get());
-	
-	auto& s = (*it).get();
-	return &s;
 }
 
 

@@ -247,20 +247,41 @@ TEST_F(ContextTest, TransitionToOneOfMany) {
 	ASSERT_TRUE(context.is_current(state3));
 }
 
+TEST_F(ContextTest, ParentStateHandlesEvent) {
+	auto handled_by_parent = false;
+	
+	state_t parent("parent");
+	state_t child("child");
+	
+	stream_t any("handle any input");
+	
+	parent.on_event(any, [&](context_t& c) {
+		handled_by_parent = true;
+	});
+	
+	parent.add_substate(child);
+	
+	context.start(child);
+	
+	EXPECT_TRUE(context.is_current(child));
+	EXPECT_FALSE(context.is_current(parent));
+	
+	context.execute("hello");
+	
+	EXPECT_TRUE(handled_by_parent);
+}
 
 
 
 
 /*
 state moves to conditional next
-state moves to one of many conditional next/s
-locked.add_condition(dials, condition_t::not_equal_to(), combo);
 substate handles event
 timer
 timer changes
 timer changes state
 
-no state >> assertion error
+locked.add_condition(dials, condition_t::not_equal_to(), combo);
 
 event_t
 -------
@@ -281,17 +302,7 @@ state_t(std::string name, timer_t timer)
 
 std::string name()
 add_substate(state_t s)
-add_condition(condition_t c)
 add_conditions(condition_t[], binary_function<>, condition_t[])
-
-
-
-on_enter(std::function<void(context_t)> fn)
-
-on_exit(std::function<void(context_t)> fn)
-
-error_t on_error(std::function<void(context_t)> fn) 
-
 
 condition_t
 -----------

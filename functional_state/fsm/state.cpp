@@ -9,8 +9,9 @@
 #include <string>
 #include <cassert>
 
-state_t::state_t(const std::string& name) : name_(name)
-{}
+state_t::state_t(const std::string& name) 
+	: name_(name), parent_(nullptr) {
+}
 
 const std::string& state_t::name() {
 	return name_;
@@ -19,6 +20,11 @@ const std::string& state_t::name() {
 event_t& state_t::on_event(stream_t& in, std::function<void(context_t&)> handler) {
 	events_.push_back(event_t(in, handler));
 	return events_.back();
+}
+
+void state_t::add_substate(state_t& s) {
+	assert(s.parent_ == nullptr);
+	s.parent_ = this;
 }
 
 void state_t::add_condition(condition_t& c) {
@@ -39,13 +45,18 @@ void state_t::on_exit(std::function<void(context_t&)> handler) {
 
 bool state_t::execute(const std::string& input) {
 	assert(context_);
+	
 	for (auto& e : events_) {
 		if (e.stream().accept(input) > 0) {
 			context_->raise_event(e);
 			return true;
 		}
 	}
-	return false;
+	
+	if (!parent_)
+		return false;
+	
+	return parent_->execute(input);
 }
 
 bool state_t::can_enter() {
