@@ -21,6 +21,14 @@ event_t& state_t::on_event(stream_t& in, std::function<void(context_t&)> handler
 	return events_.back();
 }
 
+void state_t::add_condition(condition_t& c) {
+	conditions_.push_back(c);
+}
+
+void state_t::add_condition(condition_t&& c) {
+	conditions_.push_back(c);
+}
+
 void state_t::on_enter(std::function<void(context_t&)> handler) {
 	enter_ = handler;
 }
@@ -39,6 +47,21 @@ bool state_t::execute(const std::string& input) {
 	}
 	return false;
 }
+
+bool state_t::can_enter() {
+	for (auto& c : conditions_) {
+		if (!c.eval(*this))
+			return false;
+	}
+	return true;
+}
+
+
+
+
+
+
+
 
 
 

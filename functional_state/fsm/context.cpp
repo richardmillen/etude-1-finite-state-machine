@@ -15,17 +15,15 @@ bool context_t::is_current(state_t& s) {
 	return current_ != nullptr && current_->name() == s.name();
 }
 
-void context_t::start(state_t& s) {
-	if (current_ && current_->exit_)
-		current_->exit_(*this);
+bool context_t::start(state_t& s) {
+	if (!s.can_enter())
+		return false;
 	
-	current_ = &s;
-	s.context_ = this;
+	on_exit_current();
+	set_current(s);
+	on_enter_current();
 	
-	if (!s.enter_)
-		return;
-	
-	s.enter_(*this);
+	return true;
 }
 
 bool context_t::execute(const std::string& input) {
@@ -43,7 +41,8 @@ void context_t::raise_event(event_t& e) {
 	if (!e.has_next())
 		return;
 	
-	start(e.next_state());
+	if (!start(e.next_state()))
+		return;
 	
 	if (!exec_next_)
 		return;
@@ -60,6 +59,27 @@ void context_t::next_execute(const std::string& input) {
 	exec_next_ = true;
 	next_in_.assign(input);
 }
+
+void context_t::set_current(state_t& s) {
+	current_ = &s;
+	s.context_ = this;
+}
+
+void context_t::on_exit_current() {
+	if (!current_)
+		return;
+	if (!current_->exit_)
+		return;
+	current_->exit_(*this);
+}
+
+void context_t::on_enter_current() {
+	if (!current_)
+		return;
+	if (!current_->enter_)
+		return;
+	current_->enter_(*this);
+}	
 
 
 

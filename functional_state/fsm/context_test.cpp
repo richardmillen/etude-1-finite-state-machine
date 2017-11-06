@@ -205,18 +205,31 @@ TEST_F(ContextTest, StateEnteredEvent) {
 	EXPECT_TRUE(entered);
 }
 
-
+TEST_F(ContextTest, FalseConditionPreventsTransition) {
+	stream_t next("go to next", "next");
+	
+	state1.on_event(next, [](context_t& c) {
+		/* move to next state */
+	}).next_state(state2);
+	
+	state2.add_condition(condition_t([](state_t& s) {
+		return false;
+	}));
+	
+	context.start(state1);
+	
+	context.execute("next");
+	
+	ASSERT_TRUE(context.is_current(state1));
+}
 
 
 
 
 /*
-state on enter
-state on exit
-state on error ?
-state doesn't move to conditional next
 state moves to conditional next
 state moves to one of many conditional next/s
+locked.add_condition(dials, condition_t::not_equal_to(), combo);
 substate handles event
 timer
 timer changes
