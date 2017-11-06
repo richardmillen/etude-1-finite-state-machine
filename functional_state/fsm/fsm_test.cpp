@@ -1,6 +1,6 @@
-//////////////////////
-// context_test.cpp //
-//////////////////////
+//////////////////
+// fsm_test.cpp //
+//////////////////
 
 #include "context.hpp"
 #include "state.hpp"
@@ -15,10 +15,10 @@
 
 using namespace std;
 
-class ContextTest : public testing::Test
+class FsmTest : public testing::Test
 {
 public:
-	ContextTest() : state1("state1"), state2("state2"), state3("state3") {}
+	FsmTest() : state1("state1"), state2("state2"), state3("state3") {}
 public:
 	context_t context;
 	state_t state1;
@@ -26,17 +26,17 @@ public:
 	state_t state3;
 };
 
-TEST_F(ContextTest, NoCurrentState) {
+TEST_F(FsmTest, NoCurrentState) {
 	ASSERT_FALSE(context.is_current(state1));
 }
 
-TEST_F(ContextTest, StartStateIsCurrent) {
+TEST_F(FsmTest, StartStateIsCurrent) {
 	context.start(state1);
 	
 	ASSERT_TRUE(context.is_current(state1));
 }
 
-TEST_F(ContextTest, StateHandlesSingleEvent) {
+TEST_F(FsmTest, StateHandlesSingleEvent) {
 	auto counter = 0;
 	
 	stream_t plus("plus (increment counter)", R"(\+)");
@@ -57,7 +57,7 @@ TEST_F(ContextTest, StateHandlesSingleEvent) {
 	EXPECT_EQ(1, counter);
 }
 
-TEST_F(ContextTest, StateHandlesMultipleEvents) {
+TEST_F(FsmTest, StateHandlesMultipleEvents) {
 	auto counter = 0;
 	
 	stream_t inc("increment counter", "i");
@@ -82,7 +82,7 @@ TEST_F(ContextTest, StateHandlesMultipleEvents) {
 	ASSERT_EQ(1, counter);
 }
 
-TEST_F(ContextTest, EventReadsFromStream) {
+TEST_F(FsmTest, EventReadsFromStream) {
 	string str;
 	
 	stream_t any("all events");
@@ -99,7 +99,7 @@ TEST_F(ContextTest, EventReadsFromStream) {
 	EXPECT_EQ("abc", str);
 }
 
-TEST_F(ContextTest, StateTransitions) {
+TEST_F(FsmTest, StateTransitions) {
 	ostringstream oss;
 	
 	stream_t next("go to next", "next");
@@ -121,7 +121,7 @@ TEST_F(ContextTest, StateTransitions) {
 	ASSERT_EQ("next,prev", oss.str());
 }
 
-TEST_F(ContextTest, StreamSharedByStates) {
+TEST_F(FsmTest, StreamSharedByStates) {
 	ostringstream oss;
 	
 	stream_t shared("shared stream", "[abc]");
@@ -143,7 +143,7 @@ TEST_F(ContextTest, StreamSharedByStates) {
 	ASSERT_EQ("1a2b2c", oss.str());
 }
 
-TEST_F(ContextTest, StateExecutesNextState) {
+TEST_F(FsmTest, StateExecutesNextState) {
 	ostringstream oss;
 	
 	state_t end("end");
@@ -180,7 +180,7 @@ TEST_F(ContextTest, StateExecutesNextState) {
 	ASSERT_EQ("1:a 2:b 1:c 2:d 1:END E:[state1 says hi!]", oss.str());
 }
 
-TEST_F(ContextTest, StateEnteredEvent) {
+TEST_F(FsmTest, StateEnteredEvent) {
 	bool entered = false;
 	bool exited = false;
 	
@@ -206,7 +206,7 @@ TEST_F(ContextTest, StateEnteredEvent) {
 	EXPECT_TRUE(entered);
 }
 
-TEST_F(ContextTest, FalseConditionPreventsTransition) {
+TEST_F(FsmTest, FalseConditionPreventsTransition) {
 	stream_t next("go to next", "next");
 	
 	state1.on_event(next, [](context_t& c) {
@@ -224,7 +224,7 @@ TEST_F(ContextTest, FalseConditionPreventsTransition) {
 	ASSERT_TRUE(context.is_current(state1));
 }
 
-TEST_F(ContextTest, TransitionToOneOfMany) {
+TEST_F(FsmTest, TransitionToOneOfMany) {
 	auto which = 0;
 	
 	stream_t opt("go to state 2 or 3", "[23]");
@@ -247,7 +247,7 @@ TEST_F(ContextTest, TransitionToOneOfMany) {
 	ASSERT_TRUE(context.is_current(state3));
 }
 
-TEST_F(ContextTest, AncestorOfStateHandlesEvent) {
+TEST_F(FsmTest, AncestorOfStateHandlesEvent) {
 	auto handled_by_ancestor = false;
 	
 	state_t grand_parent("grand parent");
