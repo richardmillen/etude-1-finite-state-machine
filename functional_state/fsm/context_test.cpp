@@ -181,12 +181,17 @@ TEST_F(ContextTest, StateExecutesNextState) {
 
 TEST_F(ContextTest, StateEnteredEvent) {
 	bool entered = false;
+	bool exited = false;
 	
 	stream_t next("go to next", "next");
 	
 	state1.on_event(next, [](context_t& c) {
-		// nothing to do here
+		/* 'next' event handler */
 	}).next_state(state2);
+	
+	state1.on_exit([&](context_t& c) {
+		exited = true;
+	});
 	
 	state2.on_enter([&](context_t& c) {
 		entered = true;
@@ -196,8 +201,13 @@ TEST_F(ContextTest, StateEnteredEvent) {
 	
 	context.execute("next");
 	
-	ASSERT_TRUE(entered);
+	EXPECT_TRUE(exited);
+	EXPECT_TRUE(entered);
 }
+
+
+
+
 
 
 /*

@@ -8,7 +8,7 @@
 #include <string>
 #include <cassert>
 
-context_t::context_t() : current_(NULL)
+context_t::context_t() : current_(nullptr), raising_(nullptr)
 {}
 
 bool context_t::is_current(state_t& s) {
@@ -16,13 +16,16 @@ bool context_t::is_current(state_t& s) {
 }
 
 void context_t::start(state_t& s) {
+	if (current_ && current_->exit_)
+		current_->exit_(*this);
+	
 	current_ = &s;
 	s.context_ = this;
 	
-	if (!s.enter_handler_)
+	if (!s.enter_)
 		return;
 	
-	s.enter_handler_(*this);
+	s.enter_(*this);
 }
 
 bool context_t::execute(const std::string& input) {
