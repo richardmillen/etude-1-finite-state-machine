@@ -5,6 +5,7 @@
 #pragma once
 
 #include <functional>
+#include <vector>
 
 class context_t;
 class state_t;
@@ -21,7 +22,7 @@ public:
 private:
 	stream_t& in_;
 	std::function<void(context_t&)> handler_;
-	state_t* next_;
+	std::vector<state_t*> next_states_;
 };
 
 

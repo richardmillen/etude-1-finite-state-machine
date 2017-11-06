@@ -7,7 +7,7 @@
 #include <cassert>
 
 event_t::event_t(stream_t& in, std::function<void(context_t&)> fn) 
-	: in_(in), handler_(fn), next_(nullptr) {
+	: in_(in), handler_(fn) {
 }
 
 stream_t& event_t::stream() {
@@ -19,16 +19,16 @@ void event_t::raise(context_t& ctx) {
 }
 
 void event_t::next_state(state_t& s) {
-	next_ = &s;
+	next_states_.push_back(&s);
 }
 
 state_t& event_t::next_state() {
-	assert(next_);
-	return *next_;
+	assert(has_next());
+	return *(next_states_.front());
 }
 
 bool event_t::has_next() {
-	return next_ != nullptr;
+	return next_states_.size() > 0;
 }
 
 
