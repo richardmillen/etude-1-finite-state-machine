@@ -12,6 +12,7 @@
 #include <string>
 #include <sstream>
 #include <functional>
+#include <stdexcept>
 
 using namespace std;
 
@@ -269,7 +270,7 @@ TEST_F(FsmTest, AncestorOfStateHandlesEvent) {
 	EXPECT_TRUE(handled_by_ancestor);
 }
 
-TEST_F(FsmTest, MustMoveToNextStateFails) {
+TEST_F(FsmTest, MustTransitionToNextStateFails) {
 	stream_t any("accept any input");
 	
 	state1.on_event(any, [](context_t& c) {
@@ -282,8 +283,10 @@ TEST_F(FsmTest, MustMoveToNextStateFails) {
 	
 	context.start(state1);
 	
-	ASSERT_ANY_THROW(context.execute("foo"));
+	ASSERT_THROW(context.execute("foo"), std::logic_error);
 }
+
+
 
 
 
