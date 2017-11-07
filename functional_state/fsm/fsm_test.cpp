@@ -306,6 +306,20 @@ TEST_F(FsmTest, MustTransitionToOneOfManyFails) {
 	EXPECT_TRUE(context.is_current(state1));
 }
 
+TEST_F(FsmTest, MustTransitionToOneOfMany) {
+	stream_t any("accept any input");
+	
+	state1.on_event(any, [&](context_t& c) {
+		// MUST move from state1 to state2 or state3
+	}).must_next({state2, state3});
+	
+	context.start(state1);
+	
+	EXPECT_NO_THROW(context.execute("foo"));
+	EXPECT_TRUE(context.is_current(state2));
+}
+
+
 
 
 
