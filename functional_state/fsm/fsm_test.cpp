@@ -233,7 +233,7 @@ TEST_F(FsmTest, TransitionToOneOfMany) {
 	state2.add_condition(condition_t([&](state_t& s) {
 		return which == 2;
 	}));
-	state2.add_condition(condition_t([&](state_t& s) {
+	state3.add_condition(condition_t([&](state_t& s) {
 		return which == 3;
 	}));
 
@@ -285,6 +285,27 @@ TEST_F(FsmTest, MustTransitionToNextStateFails) {
 	
 	ASSERT_THROW(context.execute("foo"), std::logic_error);
 }
+
+TEST_F(FsmTest, MustTransitionToOneOfManyFails) {
+	stream_t any("accept any input");
+	
+	state1.on_event(any, [&](context_t& c) {
+		// MUST move from state1 to state2 or state3
+	}).must_next({state2, state3});
+	
+	state2.add_condition(condition_t([&](state_t& s) {
+		return false;
+	}));
+	state3.add_condition(condition_t([&](state_t& s) {
+		return false;
+	}));
+
+	context.start(state1);
+	
+	EXPECT_THROW(context.execute("foo"), std::logic_error);
+	EXPECT_TRUE(context.is_current(state1));
+}
+
 
 
 

@@ -38,6 +38,11 @@ void event_t::must_next(state_t& s) {
 	next_states_.push_back(s);
 }
 
+void event_t::must_next(std::initializer_list<std::reference_wrapper<state_t>> s) {
+	must_ = true;
+	next_states_.insert(next_states_.end(), s.begin(), s.end());
+}
+
 state_t* event_t::next_state() {
 	auto it = find_if(next_states_.begin(), next_states_.end(), 
 			  [](const reference_wrapper<state_t>& s) {
