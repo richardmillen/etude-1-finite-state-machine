@@ -272,7 +272,9 @@ TEST_F(FsmTest, AncestorOfStateHandlesEvent) {
 TEST_F(FsmTest, MustMoveToNextStateFails) {
 	stream_t any("accept any input");
 	
-	state1.on_event(any, [](context_t& c) {}).must_next(state2);
+	state1.on_event(any, [](context_t& c) {
+		// MUST move from state1 to state2
+	}).must_next(state2);
 	
 	state2.add_condition(condition_t([&](state_t& s) {
 		return false;
@@ -282,65 +284,6 @@ TEST_F(FsmTest, MustMoveToNextStateFails) {
 	
 	ASSERT_ANY_THROW(context.execute("foo"));
 }
-
-
-
-
-
-/*
-state moves to conditional next
-timer
-timer changes
-timer changes state
-
-locked.add_condition(dials, condition_t::not_equal_to(), combo);
-
-event_t
--------
-
-next_state(state_t s)
-next_state(condition_t c, state_t[] s)
-next_state(state_t[] s)
-
-must_next(state_t s)
-must_next(condition_t c, state_t[] s);
-must_next(state_t[] s)
-
-state_t
--------
-
-state_t(std::string name)
-state_t(std::string name, timer_t timer)
-
-std::string name()
-add_substate(state_t s)
-add_conditions(condition_t[], binary_function<>, condition_t[])
-
-condition_t
------------
-
-condition_t()
-condition_t(std::function<bool(state_t)> fn)
-
-expr() -> std::string&		<-- ??
-
-eval(std::function<bool(state_t)> fn)
-
-
-
-context_t:
-
-initial_state(state_t[] s)
-reset() <-- ??
-
-stream()
-string()
-next_stream()
-
-start_timer()
-
-
-*/
 
 
 

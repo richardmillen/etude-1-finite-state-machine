@@ -9,6 +9,7 @@
 #include <functional>
 #include <initializer_list>
 #include <algorithm>
+#include <stdexcept>
 
 using namespace std;
 
@@ -42,9 +43,11 @@ state_t* event_t::next_state() {
 			  [](const reference_wrapper<state_t>& s) {
 		return s.get().can_enter();
 	});
-	if (it == next_states_.end())
-		return nullptr;
-	return &((*it).get());
+	if (it != next_states_.end())
+		return &((*it).get());
+	if (must_)
+		throw std::logic_error("failed to move to next state");
+	return nullptr;
 }
 
 	
