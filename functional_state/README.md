@@ -2,7 +2,7 @@
 
 This folder contains a number of examples / use cases for a finite-state machine, with a functional (rather than imperitive) flavour.
 
-For instance all input events are handled by lambda functions, regular expressions are used to determine if/when/how input should be handled and conditions may be defined against a state that determines whether it may be entered. 
+For instance all input events are handled by lambda functions, regular expressions are used to determine if/when/how input should be handled and conditions may be defined against a state that determine whether it may be entered. 
 
 ## The Examples
 
