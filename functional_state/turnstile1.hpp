@@ -5,7 +5,7 @@
 #include <iostream>
 #include <string>
 
-void assemble(context_t& turnstile) {
+void assemble(context& turnstile) {
 	// TODO: reimplement using current api
 	
 	

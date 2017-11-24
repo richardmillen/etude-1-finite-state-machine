@@ -9,42 +9,42 @@
 #include <string>
 #include <cassert>
 
-state_t::state_t(const std::string& name) 
+state::state(const std::string& name) 
 	: name_(name), parent_(nullptr) {
 }
 
-const std::string& state_t::name() {
+const std::string& state::name() {
 	return name_;
 }
 
-event_t& state_t::on_event(stream_t& in, std::function<void(context_t&)> handler) {
-	events_.push_back(event_t(in, handler));
+event& state::on_event(stream& in, std::function<void(context&)> handler) {
+	events_.push_back(event(in, handler));
 	return events_.back();
 }
 
-state_t& state_t::add_substate(state_t& s) {
+state& state::add_substate(state& s) {
 	assert(s.parent_ == nullptr);
 	s.parent_ = this;
 	return s;
 }
 
-void state_t::add_condition(condition_t& c) {
+void state::add_condition(condition& c) {
 	conditions_.push_back(c);
 }
 
-void state_t::add_condition(condition_t&& c) {
+void state::add_condition(condition&& c) {
 	conditions_.push_back(c);
 }
 
-void state_t::on_enter(std::function<void(context_t&)> handler) {
+void state::on_enter(std::function<void(context&)> handler) {
 	enter_ = handler;
 }
 
-void state_t::on_exit(std::function<void(context_t&)> handler) {
+void state::on_exit(std::function<void(context&)> handler) {
 	exit_ = handler;
 }
 
-bool state_t::execute(const std::string& input) {
+bool state::execute(const std::string& input) {
 	assert(context_);
 	
 	for (auto& e : events_) {
@@ -60,7 +60,7 @@ bool state_t::execute(const std::string& input) {
 	return parent_->execute(input);
 }
 
-bool state_t::can_enter() {
+bool state::can_enter() {
 	for (auto& c : conditions_) {
 		if (!c.eval(*this))
 			return false;

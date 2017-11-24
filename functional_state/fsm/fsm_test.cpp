@@ -21,10 +21,10 @@ class FsmTest : public testing::Test
 public:
 	FsmTest() : state1("state1"), state2("state2"), state3("state3") {}
 public:
-	context_t context;
-	state_t state1;
-	state_t state2;
-	state_t state3;
+	context context;
+	state state1;
+	state state2;
+	state state3;
 };
 
 TEST_F(FsmTest, NoCurrentState) {
@@ -40,8 +40,8 @@ TEST_F(FsmTest, StartStateIsCurrent) {
 TEST_F(FsmTest, StateHandlesSingleEvent) {
 	auto counter = 0;
 	
-	stream_t plus("plus (increment counter)", R"(\+)");
-	state1.on_event(plus, [&](context_t& c) {
+	stream plus("plus (increment counter)", R"(\+)");
+	state1.on_event(plus, [&](context& c) {
 		++counter;
 	});
 	
@@ -61,14 +61,14 @@ TEST_F(FsmTest, StateHandlesSingleEvent) {
 TEST_F(FsmTest, StateHandlesMultipleEvents) {
 	auto counter = 0;
 	
-	stream_t inc("increment counter", "i");
-	stream_t dec("decrement counter", "d");
+	stream inc("increment counter", "i");
+	stream dec("decrement counter", "d");
 	
-	state1.on_event(inc, [&](context_t& c) {
+	state1.on_event(inc, [&](context& c) {
 		++counter;
 	});
 	
-	state1.on_event(dec, [&](context_t& c) {
+	state1.on_event(dec, [&](context& c) {
 		--counter;
 	});
 	
@@ -86,8 +86,8 @@ TEST_F(FsmTest, StateHandlesMultipleEvents) {
 TEST_F(FsmTest, EventReadsFromStream) {
 	string str;
 	
-	stream_t any("all events");
-	state1.on_event(any, [&](context_t& c) {
+	stream any("all events");
+	state1.on_event(any, [&](context& c) {
 		str.append(c.input());
 	});
 	
@@ -103,14 +103,14 @@ TEST_F(FsmTest, EventReadsFromStream) {
 TEST_F(FsmTest, StateTransitions) {
 	ostringstream oss;
 	
-	stream_t next("go to next", "next");
-	stream_t prev("go to previous", "prev");
+	stream next("go to next", "next");
+	stream prev("go to previous", "prev");
 	
-	state1.on_event(next, [&](context_t& c) {
+	state1.on_event(next, [&](context& c) {
 		oss << c.input();
 	}).next_state(state2);
 
-	state2.on_event(prev, [&](context_t& c) {
+	state2.on_event(prev, [&](context& c) {
 		oss << "," << c.input();
 	}).next_state(state1);
 	
@@ -125,13 +125,13 @@ TEST_F(FsmTest, StateTransitions) {
 TEST_F(FsmTest, StreamSharedByStates) {
 	ostringstream oss;
 	
-	stream_t shared("shared stream", "[abc]");
+	stream shared("shared stream", "[abc]");
 	
-	state1.on_event(shared, [&](context_t& c) {
+	state1.on_event(shared, [&](context& c) {
 		oss << "1" << c.input();
 	}).next_state(state2);
 	
-	state2.on_event(shared, [&](context_t& c) {
+	state2.on_event(shared, [&](context& c) {
 		oss << "2" << c.input();
 	});
 	
@@ -147,26 +147,26 @@ TEST_F(FsmTest, StreamSharedByStates) {
 TEST_F(FsmTest, StateExecutesNextState) {
 	ostringstream oss;
 	
-	state_t end("end");
+	state end("end");
 	
-	stream_t move("move to next state", "[a-z]{1}");
-	stream_t skip("skip to end", "END");
-	stream_t last("last event (format: from,message)", {R"(state\d)", ",", ".+"});
+	stream move("move to next state", "[a-z]{1}");
+	stream skip("skip to end", "END");
+	stream last("last event (format: from,message)", {R"(state\d)", ",", ".+"});
 	
-	state1.on_event(move, [&](context_t& c) {
+	state1.on_event(move, [&](context& c) {
 		oss << "1:" << c.input() << " ";
 	}).next_state(state2);
 	
-	state1.on_event(skip, [&](context_t& c) {
+	state1.on_event(skip, [&](context& c) {
 		oss << "1:" << c.input() << " ";
 		c.next_execute("state1,hi!");
 	}).next_state(end);
 	
-	state2.on_event(move, [&](context_t& c) {
+	state2.on_event(move, [&](context& c) {
 		oss << "2:" << c.input() << " ";
 	}).next_state(state1);
 	
-	end.on_event(last, [&](context_t& c) {
+	end.on_event(last, [&](context& c) {
 		oss << "E:[" << c.input(0) << " says " << c.input(2) << "]";
 	});
 	
@@ -185,15 +185,15 @@ TEST_F(FsmTest, StateEnteredEvent) {
 	bool entered = false;
 	bool exited = false;
 	
-	stream_t next("go to next", "next");
+	stream next("go to next", "next");
 	
-	state1.on_event(next, [](context_t& c) {}).next_state(state2);
+	state1.on_event(next, [](context& c) {}).next_state(state2);
 	
-	state1.on_exit([&](context_t& c) {
+	state1.on_exit([&](context& c) {
 		exited = true;
 	});
 	
-	state2.on_enter([&](context_t& c) {
+	state2.on_enter([&](context& c) {
 		entered = true;
 	});
 	
@@ -206,11 +206,11 @@ TEST_F(FsmTest, StateEnteredEvent) {
 }
 
 TEST_F(FsmTest, FalseConditionPreventsTransition) {
-	stream_t next("go to next", "next");
+	stream next("go to next", "next");
 	
-	state1.on_event(next, [](context_t& c) {}).next_state(state2);
+	state1.on_event(next, [](context& c) {}).next_state(state2);
 	
-	state2.add_condition(condition_t([](state_t& s) {
+	state2.add_condition(condition([](state& s) {
 		return false;
 	}));
 	
@@ -224,16 +224,16 @@ TEST_F(FsmTest, FalseConditionPreventsTransition) {
 TEST_F(FsmTest, TransitionToOneOfMany) {
 	auto which = 0;
 	
-	stream_t opt("go to state 2 or 3", "[23]");
+	stream opt("go to state 2 or 3", "[23]");
 	
-	state1.on_event(opt, [&](context_t& c) {
+	state1.on_event(opt, [&](context& c) {
 		which = stoi(c.input());
 	}).next_state({state2, state3});
 	
-	state2.add_condition(condition_t([&](state_t& s) {
+	state2.add_condition(condition([&](state& s) {
 		return which == 2;
 	}));
-	state3.add_condition(condition_t([&](state_t& s) {
+	state3.add_condition(condition([&](state& s) {
 		return which == 3;
 	}));
 
@@ -247,13 +247,13 @@ TEST_F(FsmTest, TransitionToOneOfMany) {
 TEST_F(FsmTest, AncestorOfStateHandlesEvent) {
 	auto handled_by_ancestor = false;
 	
-	state_t grand_parent("grand parent");
-	state_t parent("parent");
-	state_t child("child");
+	state grand_parent("grand parent");
+	state parent("parent");
+	state child("child");
 	
-	stream_t any("handle any input");
+	stream any("handle any input");
 	
-	grand_parent.on_event(any, [&](context_t& c) {
+	grand_parent.on_event(any, [&](context& c) {
 		handled_by_ancestor = true;
 	});
 	
@@ -271,13 +271,13 @@ TEST_F(FsmTest, AncestorOfStateHandlesEvent) {
 }
 
 TEST_F(FsmTest, MustTransitionToNextStateFails) {
-	stream_t any("accept any input");
+	stream any("accept any input");
 	
-	state1.on_event(any, [](context_t& c) {
+	state1.on_event(any, [](context& c) {
 		// MUST move from state1 to state2
 	}).must_next(state2);
 	
-	state2.add_condition(condition_t([&](state_t& s) {
+	state2.add_condition(condition([&](state& s) {
 		return false;
 	}));
 	
@@ -287,16 +287,16 @@ TEST_F(FsmTest, MustTransitionToNextStateFails) {
 }
 
 TEST_F(FsmTest, MustTransitionToOneOfManyFails) {
-	stream_t any("accept any input");
+	stream any("accept any input");
 	
-	state1.on_event(any, [&](context_t& c) {
+	state1.on_event(any, [&](context& c) {
 		// MUST move from state1 to state2 or state3
 	}).must_next({state2, state3});
 	
-	state2.add_condition(condition_t([&](state_t& s) {
+	state2.add_condition(condition([&](state& s) {
 		return false;
 	}));
-	state3.add_condition(condition_t([&](state_t& s) {
+	state3.add_condition(condition([&](state& s) {
 		return false;
 	}));
 
@@ -307,9 +307,9 @@ TEST_F(FsmTest, MustTransitionToOneOfManyFails) {
 }
 
 TEST_F(FsmTest, MustTransitionToOneOfMany) {
-	stream_t any("accept any input");
+	stream any("accept any input");
 	
-	state1.on_event(any, [&](context_t& c) {
+	state1.on_event(any, [&](context& c) {
 		// MUST move from state1 to state2 or state3
 	}).must_next({state2, state3});
 	

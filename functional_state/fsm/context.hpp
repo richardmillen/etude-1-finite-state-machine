@@ -7,28 +7,28 @@
 #include <string>
 #include <memory>
 
-class state_t;
-class stream_t;
-class event_t;
+class state;
+class stream;
+class event;
 
-class context_t {
+class context {
 public: // consumer api
-	context_t();
-	bool is_current(state_t& s);
-	bool start(state_t& s);
+	context();
+	bool is_current(state& s);
+	bool start(state& s);
 	bool execute(const std::string& input);
 public: // event handler api	
 	const std::string& input(unsigned seq_index = 0);
 	void next_execute(const std::string& input);
 public: // state api
-	void raise_event(event_t& e);
+	void raise_event(event& e);
 private:
-	void set_current(state_t& s);
+	void set_current(state& s);
 	void on_enter_current();
 	void on_exit_current();
 private:
-	state_t* current_;			// TODO: is this safe?
-	event_t* raising_;			// TODO: is this safe?
+	state* current_;			// TODO: is this safe?
+	event* raising_;			// TODO: is this safe?
 	std::string next_in_;
 	bool exec_next_;
 };

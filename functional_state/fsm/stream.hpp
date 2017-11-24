@@ -10,11 +10,11 @@
 #include <sstream>
 #include <regex>
 
-class stream_t {
+class stream {
 public:
-	stream_t(const std::string& name);
-	stream_t(const std::string& name, const std::string& match);
-	stream_t(const std::string& name, std::initializer_list<std::string> match_seq);
+	stream(const std::string& name);
+	stream(const std::string& name, const std::string& match);
+	stream(const std::string& name, std::initializer_list<std::string> match_seq);
 	int accept(const std::string& input);
 	const std::string& accepted(unsigned seq_index = 0);
 private:

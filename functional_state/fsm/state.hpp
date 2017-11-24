@@ -12,29 +12,29 @@
 #include <vector>
 #include <functional>
 
-class context_t;
+class context;
 
-class state_t {
-	friend class context_t;
+class state {
+	friend class context;
 public:
-	state_t(const std::string& name);
+	state(const std::string& name);
 	const std::string& name();
-	event_t& on_event(stream_t& in, std::function<void(context_t&)> handler);
-	state_t& add_substate(state_t& s);
-	void add_condition(condition_t& c);
-	void add_condition(condition_t&& c);
-	void on_enter(std::function<void(context_t&)> handler);
-	void on_exit(std::function<void(context_t&)> handler);
+	event& on_event(stream& in, std::function<void(context&)> handler);
+	state& add_substate(state& s);
+	void add_condition(condition& c);
+	void add_condition(condition&& c);
+	void on_enter(std::function<void(context&)> handler);
+	void on_exit(std::function<void(context&)> handler);
 	bool execute(const std::string& input);
 	bool can_enter();
 private:
-	context_t* context_;			// TODO: is this safe?
+	context* context_;			// TODO: is this safe?
 	std::string name_;
-	state_t* parent_;
-	std::vector<event_t> events_;
-	std::vector<condition_t> conditions_;
-	std::function<void(context_t&)> enter_;
-	std::function<void(context_t&)> exit_;
+	state* parent_;
+	std::vector<event> events_;
+	std::vector<condition> conditions_;
+	std::function<void(context&)> enter_;
+	std::function<void(context&)> exit_;
 };
 
 

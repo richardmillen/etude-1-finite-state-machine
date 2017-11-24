@@ -9,20 +9,20 @@
 #include <chrono>
 
 int main(int argc, char* argv[]) {
-	context_t clock;
+	context clock;
 	
-	stream_t<int> count("counter", 10);
-	stream_t start("start", "start");
+	stream<int> count("counter", 10);
+	stream start("start", "start");
 	
-	condition_t timed_out([]() {
+	condition timed_out([]() {
 		// TODO: how best to implement?	
 	});
 	
-	timer_t timer("timer", 1s);
-	timer_t bell("bell", 500ms);
+	timer timer("timer", 1s);
+	timer bell("bell", 500ms);
 	
-	state_t on("on", timer);
-	state_t alarm("alarm", bell);
+	state on("on", timer);
+	state alarm("alarm", bell);
 	
 	on.add_substate(alarm);
 	

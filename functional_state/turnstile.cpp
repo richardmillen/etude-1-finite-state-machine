@@ -8,7 +8,7 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
-	context_t turnstile;
+	context turnstile;
 
 	configure(turnstile);
 	

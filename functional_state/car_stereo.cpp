@@ -6,23 +6,23 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
-    	context_t stereo;
+    	context stereo;
 	
-	stream_t cmd_back("back", "<");
-	stream_t cmd_next("next", ">");
-	stream_t cmd_cd("cd", "cd");
-	stream_t cmd_radio("radio", "radio");
-	stream_t cmd_on("on", "on");
-	stream_t cmd_off("off", "off");
+	stream cmd_back("back", "<");
+	stream cmd_next("next", ">");
+	stream cmd_cd("cd", "cd");
+	stream cmd_radio("radio", "radio");
+	stream cmd_on("on", "on");
+	stream cmd_off("off", "off");
 	
-	condition_t start_mode([](s) {
+	condition start_mode([](s) {
 		return "cd" == s.name();
 	});
 	
-	state_t off("off");
-	state_t on("on");
-	state_t cd("cd");
-	state_t radio("radio");
+	state off("off");
+	state on("on");
+	state cd("cd");
+	state radio("radio");
 	
 	on.add_substate(cd);
 	on.add_substate(radio);

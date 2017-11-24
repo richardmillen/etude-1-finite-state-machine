@@ -11,13 +11,13 @@
 using namespace std;
 
 int main(int argc, char* argv[]() {
-	context_t acceptor;
+	context acceptor;
 	
-	stream_t any_in("input");
-	stream_t nice_in("nice", "nice");
+	stream any_in("input");
+	stream nice_in("nice", "nice");
 	
-	state_t invalid("not accepting");
-	state_t ok("accepting");
+	state invalid("not accepting");
+	state ok("accepting");
 	
 	invalid.add_substate(ok);
 	

@@ -8,24 +8,24 @@
 #include <initializer_list>
 #include <vector>
 
-class context_t;
-class state_t;
-class stream_t;
+class context;
+class state;
+class stream;
 
-class event_t {
+class event {
 public:
-	event_t(stream_t& in, std::function<void(context_t&)> fn);
-	stream_t& stream();
-	void raise(context_t& ctx);
-	void next_state(state_t& s);
-	void next_state(std::initializer_list<std::reference_wrapper<state_t>> s);
-	void must_next(state_t& s);
-	void must_next(std::initializer_list<std::reference_wrapper<state_t>> s);
-	state_t* next_state();
+	event(stream& in, std::function<void(context&)> fn);
+	stream& stream();
+	void raise(context& ctx);
+	void next_state(state& s);
+	void next_state(std::initializer_list<std::reference_wrapper<state>> s);
+	void must_next(state& s);
+	void must_next(std::initializer_list<std::reference_wrapper<state>> s);
+	state* next_state();
 private:
-	stream_t& in_;
-	std::function<void(context_t&)> handler_;
-	std::vector<std::reference_wrapper<state_t>> next_states_;
+	stream& in_;
+	std::function<void(context&)> handler_;
+	std::vector<std::reference_wrapper<state>> next_states_;
 	bool must_;
 };
 

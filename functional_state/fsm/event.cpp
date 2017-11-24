@@ -13,39 +13,39 @@
 
 using namespace std;
 
-event_t::event_t(stream_t& in, std::function<void(context_t&)> fn) 
+event::event(stream& in, std::function<void(context&)> fn) 
 	: in_(in), handler_(fn), must_(false) {
 }
 
-stream_t& event_t::stream() {
+stream& event::stream() {
 	return in_;
 }
 
-void event_t::raise(context_t& ctx) {
+void event::raise(context& ctx) {
 	handler_(ctx);
 }
 
-void event_t::next_state(state_t& s) {
+void event::next_state(state& s) {
 	next_states_.push_back(s);
 }
 
-void event_t::next_state(initializer_list<reference_wrapper<state_t>> s) {
+void event::next_state(initializer_list<reference_wrapper<state>> s) {
 	next_states_.insert(next_states_.end(), s.begin(), s.end());
 }
 
-void event_t::must_next(state_t& s) {
+void event::must_next(state& s) {
 	must_ = true;
 	next_states_.push_back(s);
 }
 
-void event_t::must_next(std::initializer_list<std::reference_wrapper<state_t>> s) {
+void event::must_next(std::initializer_list<std::reference_wrapper<state>> s) {
 	must_ = true;
 	next_states_.insert(next_states_.end(), s.begin(), s.end());
 }
 
-state_t* event_t::next_state() {
+state* event::next_state() {
 	auto it = find_if(next_states_.begin(), next_states_.end(), 
-			  [](const reference_wrapper<state_t>& s) {
+			  [](const reference_wrapper<state>& s) {
 		return s.get().can_enter();
 	});
 	if (it != next_states_.end())

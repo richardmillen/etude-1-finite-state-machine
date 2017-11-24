@@ -2,14 +2,14 @@
 
 #include <functional>
 
-class state_t;
+class state;
 
-class condition_t {
+class condition {
 public:
-	condition_t(std::function<bool(state_t&)> fn);
-	bool eval(state_t& s);
+	condition(std::function<bool(state&)> fn);
+	bool eval(state& s);
 private:
-	std::function<bool(state_t& s)> pred_;
+	std::function<bool(state& s)> pred_;
 };
 
 

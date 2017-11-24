@@ -17,7 +17,7 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
-	context_t calc;
+	context calc;
 
 	unordered_map<string, ...> op_funcs = {
 		{"+", plus()},
@@ -30,17 +30,17 @@ int main(int argc, char* argv[]) {
 	auto operand2 = 0.0f;
 	auto op_func = ...;
 	
-	state_t on("on");
-	state_t op1("operand1");
-	state_t op2("operand2");
+	state on("on");
+	state op1("operand1");
+	state op2("operand2");
 	
 	on.add_substate(op1);
 	on.add_substate(op2);
 	
-	stream_t operand("operand", R"([\d\.])");
-	stream_t oper("oper", R"([\+\-/\*])");
-	stream_t equals("equals", "=");
-	stream_t clear("clear", "[cC]");
+	stream operand("operand", R"([\d\.])");
+	stream oper("oper", R"([\+\-/\*])");
+	stream equals("equals", "=");
+	stream clear("clear", "[cC]");
 	
 	on.on_event(clear, [](ctx) {
 		cout << "clearing..." << endl;

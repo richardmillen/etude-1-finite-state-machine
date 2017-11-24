@@ -7,11 +7,11 @@
 
 #include <functional>
 
-condition_t::condition_t(std::function<bool(state_t&)> fn) {
+condition::condition(std::function<bool(state&)> fn) {
 	pred_ = fn;
 }
 
-bool condition_t::eval(state_t& s) {
+bool condition::eval(state& s) {
 	return pred_(s);
 }
 

@@ -7,7 +7,7 @@
 #include <gtest/gtest.h>
 
 TEST(StateTest, GetName) {
-	state_t state("test");
+	state state("test");
 	ASSERT_EQ("test", state.name());
 }
 

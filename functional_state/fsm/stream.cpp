@@ -12,24 +12,24 @@
 
 const char* MATCH_ALL = R"([\s\S]*)";
 
-stream_t::stream_t(const std::string& name)
+stream::stream(const std::string& name)
 	: name_(name) {
 	matches_.push_back(std::regex(MATCH_ALL));
 }
 
-stream_t::stream_t(const std::string& name, const std::string& match) 
+stream::stream(const std::string& name, const std::string& match) 
 	: name_(name) {
 	matches_.push_back(std::regex(match));
 }
 
-stream_t::stream_t(const std::string& name, std::initializer_list<std::string> match_seq)
+stream::stream(const std::string& name, std::initializer_list<std::string> match_seq)
 	: name_(name) {
 	for (auto& match : match_seq) {
 		matches_.push_back(std::regex(match));
 	}
 }
 
-int stream_t::accept(const std::string& input) {
+int stream::accept(const std::string& input) {
 	accepted_.clear();
 	
 	std::cmatch res;
@@ -48,7 +48,7 @@ int stream_t::accept(const std::string& input) {
 	return accepted_.size();
 }
 
-const std::string& stream_t::accepted(unsigned seq_index) {
+const std::string& stream::accepted(unsigned seq_index) {
 	assert(seq_index < accepted_.size());
 	return accepted_[seq_index];
 }

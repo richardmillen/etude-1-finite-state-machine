@@ -11,22 +11,22 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
-	context_t lock;
+	context lock;
 	
-	vector<condition_t> combo = {1, 2, 1, 2}; 
-	vector<condition_t> dials = {0, 0, 0, 0};
+	vector<condition> combo = {1, 2, 1, 2}; 
+	vector<condition> dials = {0, 0, 0, 0};
 	
-	state_t locked("locked");
-	state_t unlocked("unlocked");
-	state_t open("open");
+	state locked("locked");
+	state unlocked("unlocked");
+	state open("open");
 	
-	stream_t cmd_open("open", "open");
-	stream_t cmd_close("close", "close");
-	stream_t cmd_up("up", "u", "[1234]");
-	stream_t cmd_down("down", "d", "[1234]");
+	stream cmd_open("open", "open");
+	stream cmd_close("close", "close");
+	stream cmd_up("up", "u", "[1234]");
+	stream cmd_down("down", "d", "[1234]");
 	
-	locked.add_condition(dials, condition_t::not_equal_to(), combo);
-	unlocked.add_condition(dials, condition_t::equal_to(), combo);
+	locked.add_condition(dials, condition::not_equal_to(), combo);
+	unlocked.add_condition(dials, condition::equal_to(), combo);
 	
 	UP: 
 		auto w = dials.writeable();
